@@ -13,7 +13,7 @@ headerReg header_init(){
     return header;
 }
 
-void header_write(headerReg* header, FILE* arquivoSaida){
+void header_write(const headerReg* header, FILE* arquivoSaida){
 
     fwrite(&header->status, sizeof(char), 1, arquivoSaida);
     fwrite(&header->topoPilha, sizeof(int), 1, arquivoSaida);
@@ -33,7 +33,7 @@ void header_read(headerReg* header, FILE* arquivoEntrada){
 
 }
 
-void data_write(dataReg* data, FILE* arquivoSaida){
+void data_write(const dataReg* data, FILE* arquivoSaida){
 
     fwrite(&data->removido, sizeof(char), 1, arquivoSaida);
     fwrite(&data->encadeamentoPilha, sizeof(int), 1, arquivoSaida);
@@ -57,7 +57,7 @@ int data_read(dataReg* data, FILE* arquivoEntrada){
     return 1;
 }
 
-void read_reg_csv(char* buffer, dataReg *data, FILE* arquivoSaida){
+void read_reg_csv(char* buffer, dataReg *data){
 
     char *cursor = buffer;
     char *inicioCampo = buffer;
@@ -65,12 +65,18 @@ void read_reg_csv(char* buffer, dataReg *data, FILE* arquivoSaida){
     data->removido = '0'; 
     data->encadeamentoPilha = -1;
 
+    // Avança os cursores 3 vezes (pois são 4 campos a serem lidos).
+    // Isso leva em conta que o primeiro campo já é lido na inicialização.
     for(int campo_atual = 0; campo_atual < 4; campo_atual++){
 
+        // Avança um dos cursores até a próxima ocorrência de ';'
         cursor = strchr(cursor, ';');
 
+        // Substitui o ponto e virgula por '\0' (criação de substring).
         if (cursor != NULL) {
             *cursor = '\0';
+
+            // Avança o cursor em um byte (início do próximo campo com dados)
             cursor++;
         }
 
@@ -82,6 +88,8 @@ void read_reg_csv(char* buffer, dataReg *data, FILE* arquivoSaida){
 
             case(0):
                 if(!campo_vazio){
+                    // Em caso de campo não vazio, transfere o conteúdo
+                    // da substring para o campo da estrutura de dados.
                     data->idPoPs = atoi(inicioCampo);
                 }
                 else data->idPoPs = -1;
@@ -113,6 +121,7 @@ void read_reg_csv(char* buffer, dataReg *data, FILE* arquivoSaida){
                 break;
         }
 
+        // Volta a sincronizar os cursores.
         inicioCampo = cursor;
     }
 }
@@ -125,6 +134,8 @@ int print_reg(dataReg* data){
 
                 printf("%d %d ", data->idPoPs, data->idPoPsConectado);
 
+                // Realiza o tratamento de erros, tanto para velocidade
+                // quanto para unidade de medida.
                 if (data->velocidade == -1) 
                     printf("NULO ");
                 else 
@@ -156,6 +167,9 @@ int parameter_search(dataReg* data, int modoBusca, char* valorBuscado) {
             else
                 valor = atoi(valorBuscado);
 
+            // Retorna 1 (mantém flag da funcionalidade 3 ativa) caso
+            // seja de fato o valor procurado, mas desativa a flag caso
+            //contrário.
             return (data->idPoPs == valor);
 
         // Buscando por idPoPsConectado

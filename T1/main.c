@@ -3,6 +3,7 @@
 
 int main(){
 
+    // Identifica a operação que o usuário quer realizar
     int cmd;
     scanf("%d", &cmd);
 
@@ -35,10 +36,15 @@ int main(){
             
             int numConjuntos;
 
+            // A variável "numConjuntos" indica quantas buscas com critério devem ser executadas
             scanf("%s %d", arquivoEntradaBin, &numConjuntos);
 
+            // Para isso, deve-se realizar a obtenção de parâmetros conforme indicado por "numConjuntos",
+            // levando em conta que não se sabe quantos pares parâmetro-valor o programa está esperando.
             for(int i = 0; i < numConjuntos; i++){
-
+                
+                // Assim, para cada conjunto, primeiro obtém-se o número de pares esperados, para que
+                // então a variável do tipo "argsBusca" seja criada do tamanho apropriado
                 int numPares;
                 scanf("%d", &numPares);
 
@@ -46,6 +52,8 @@ int main(){
 
                 for(int j = 0; j < numPares; j++){
 
+                    // Percorre-se todos os pares, armazenando tanto o nome do parâmetro buscado, quanto
+                    // o valor nele buscado.
                     scanf("%s %s", args[j].nomesCampo, args[j].valoresCampo);
                 }
 

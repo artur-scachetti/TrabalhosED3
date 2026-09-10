@@ -1,7 +1,7 @@
 #include "func.h"
 #include "tools.h"
 
-void func_1(char* arquivoEntrada, char* arquivoSaida){
+void func1(char* arquivoEntrada, char* arquivoSaida){
 
     FILE* fEntrada;
     FILE* fSaida;
@@ -19,16 +19,19 @@ void func_1(char* arquivoEntrada, char* arquivoSaida){
         dataReg data;
         
         int registros = 0;
-
+        
+        // Percorre-se o arquivo .csv inteiro, armazenando-o na string 'buffer'.
         while(fgets(*buffer, sizeof(buffer), fEntrada) != NULL) {
 
-            read_reg_csv(buffer, &data, fSaida);
+            read_reg_csv(buffer, &data);
             data_write(&data, fSaida);
             registros++;
 
         }
         fseek(fSaida, 0, SEEK_SET);
 
+        // Em caso de sucesso, marca o arquivo como consistente e atualiza o 
+        //número de registros presentes.
         header.status = '1';
         header.nroPares = registros;
         header_write(&header, fSaida);
@@ -104,6 +107,8 @@ void func3(char* arquivoEntrada, int numPares, argsBusca* args) {
             if (data.removido == '0') {
                 int sucesso = 1;
 
+                // Realiza a busca no registro para TODOS os critérios.
+                // Apenas se NENHUM falhar que o registro analisado é printado.
                 for (int i = 0; i < numPares; i++) {
 
                     char* nomeBusca = args[i].nomesCampo;
@@ -128,13 +133,16 @@ void func3(char* arquivoEntrada, int numPares, argsBusca* args) {
                         fclose(fEntrada);
                         return;
                     }
-
+                    
+                    // Basta que um dos critérios falhem para que este bloco seja executado
+                    // o que quebra o loop com resultado de falha.
                     if (!parameter_search(&data, modoBusca, valorBusca)) {
                         sucesso = 0;
                         break;
                     }
                 }
 
+                // Apenas executado se todos os critérios forem satisfeitos.
                 if (sucesso == 1) {
                     print_reg(&data);
                     encontrou = 1;
@@ -161,6 +169,8 @@ void func4(char* arquivoEntrada, int RRN){
 
     int registro_existente = 0;
 
+    // Fórmula matemática que usa o tamanho do registro e o
+    // número do registro que se quer recuperar.
     int byteOffset = RRN * BYTES_PER_REG;
 
     if((fEntrada = fopen(arquivoEntrada, "rb")) != NULL){
