@@ -1,16 +1,17 @@
-#include "func.h"
-#include "tools.h"
+#include "include/func.h"
+#include "include/tools.h"
+#include "include/fornecidas.h"
 
-int main(){
-
+int main()
+{
     // Identifica a operação que o usuário quer realizar
     int cmd;
     scanf("%d", &cmd);
 
-    switch(cmd){
-
+    switch(cmd)
+    {
         case(1):
-
+        {
             char arquivoEntradaCSV[100];
             char arquivoSaidaBin[100];
 
@@ -19,9 +20,9 @@ int main(){
             func1(arquivoEntradaCSV, arquivoSaidaBin);
 
             break;
-        
+        }
         case(2):
-
+        {
             char arquivoEntradaBin[100];
 
             scanf("%s", arquivoEntradaBin);
@@ -29,11 +30,10 @@ int main(){
             func2(arquivoEntradaBin);
 
             break;
-        
+        }
         case(3):
-
+        {
             char arquivoEntradaBin[100];
-            
             int numConjuntos;
 
             // A variável "numConjuntos" indica quantas buscas com critério devem ser executadas
@@ -41,17 +41,17 @@ int main(){
 
             // Para isso, deve-se realizar a obtenção de parâmetros conforme indicado por "numConjuntos",
             // levando em conta que não se sabe quantos pares parâmetro-valor o programa está esperando.
-            for(int i = 0; i < numConjuntos; i++){
-                
+            for(int i = 0; i < numConjuntos; i++)
+            {
                 // Assim, para cada conjunto, primeiro obtém-se o número de pares esperados, para que
                 // então a variável do tipo "argsBusca" seja criada do tamanho apropriado
                 int numPares;
                 scanf("%d", &numPares);
 
                 argsBusca args[numPares];
-
-                for(int j = 0; j < numPares; j++){
-
+                
+                for(int j = 0; j < numPares; j++)
+                {
                     // Percorre-se todos os pares, armazenando tanto o nome do parâmetro buscado, quanto
                     // o valor nele buscado.
                     scanf("%s %s", args[j].nomesCampo, args[j].valoresCampo);
@@ -59,19 +59,37 @@ int main(){
 
                 func3(arquivoEntradaBin, numPares, args);
             }
-
+        
             break;
-
+        }
         case(4):
-
+        {
             char arquivoEntradaBin[100];
-
             int RRN;
 
             scanf("%s %d", arquivoEntradaBin, &RRN);
-
             func4(arquivoEntradaBin, RRN);
 
             break;
+        }
+        case(5):
+        {
+
+        }
+            break;
+        
+        case(6):
+        {
+
+        }
+            break;
+
+        case(7):
+        {
+
+        }
+            break;
+            
+            
     }
 }
