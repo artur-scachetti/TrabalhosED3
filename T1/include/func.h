@@ -1,6 +1,6 @@
 /**
  * 
- * @file func.h
+ * @file  func.h
  * @brief Implementação das funcionalidades do trabalho.
  * 
  * Este módulo fornece as funcionalidades específicas solicitadas
@@ -24,8 +24,8 @@
  * 
  * @param[in] arquivoEntrada Trata-se do arquivo .csv que contém as informações a serem passadas para o
  *                           arquivo binário.
- * @param[out] arquivoSaida Arquivo binário que receberá o cabeçalho padrão e os dados retirados do 
- *                          arquivo .csv.
+ * @param[out] arquivoSaida  Arquivo binário que receberá o cabeçalho padrão e os dados retirados do 
+ *                           arquivo .csv.
  * 
  */
 void func1(char* arquivoEntrada, char* arquivoSaida);
@@ -53,9 +53,9 @@ void func2(char* arquivoEntrada);
  * atendido (flag desativada).
  * 
  * @param[in] arquivoEntrada Arquivo binário do qual serão extraídas as informações dos registros.
- * @param[in] numPares Indica quantos pares Parâmetro/Valor, ou seja, critérios estão sendo utilizados
- *                     na busca.
- * @param[in] args Estrutura que carrega tanto os Parâmetros quanto os Valores nele buscados.
+ * @param[in] numPares       Indica quantos pares Parâmetro/Valor, ou seja, critérios estão sendo utilizados
+ *                           na busca.
+ * @param[in] args           Estrutura que carrega tanto os Parâmetros quanto os Valores nele buscados.
  *  
  */
 void func3(char* arquivoEntrada, int numPares, argsBusca* args);
@@ -68,7 +68,7 @@ void func3(char* arquivoEntrada, int numPares, argsBusca* args);
  * byte offset = tamanho do registro x RRN
  * 
  * @param[in] arquivoEntrada Arquivo binário que acessado e do qual serão retirados os dados do registro.
- * @param[in] RRN Número do registro o qual se quer recuperar / printar.
+ * @param[in] RRN            Número do registro o qual se quer recuperar / printar.
  * 
  */
 void func4(char* arquivoEntrada, int RRN);
