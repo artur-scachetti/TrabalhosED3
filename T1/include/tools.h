@@ -25,35 +25,33 @@
 /**
  * @brief Estrutura que define os campos de um registro de cabeçalho.
  */
-typedef struct {
-
+typedef struct 
+{
     char status; /**< Indica se o arquivo está consistente ('1') ou não ('0') */
     int topoPilha; /**< RRN do registro removido mais recente (-1 caso não haja) */
     int proxRRN;  /**< Próximo RRN disponível */
     int nroRegRem; /**< Número de registros marcados como removidos */
     int nroPares; /**< Número de pares idPoPs e idPoPsConectado (número de registros distintos) */
-
 } headerReg;
 
 /**
  * @brief Estrutura que define os campos de um registro de dados.
  */
-typedef struct {
-
+typedef struct 
+{
     char removido; /**< Indica se o registro está removido ('1') ou não ('0') */
     int encadeamentoPilha; /**< RRN do próximo registro removido */
     int idPoPs; /**< ID do PoPs */
     int idPoPsConectado; /**< ID do PoPs Conectado */
     int velocidade; /**< Velocidade de transmissão */
     char unidadeMedida; /**< Um byte que indica a unidade utilizada*/
-
 } dataReg;
 
 /**
  * @brief Estrutura feita armazenar argumentos necessários para busca específica.
  */
-typedef struct {
-
+typedef struct 
+{
     char nomesCampo[100]; /**< Nome do parâmetro do qual se quer fazer a busca */
     char valoresCampo[100]; /**< O valor procurado no parâmetro especificado */
 
@@ -96,6 +94,8 @@ void header_read(headerReg* header, FILE* arquivoEntrada);
  * 
  */
 void data_write(const dataReg* data, FILE* arquivoSaida);
+
+void data_write_rem(const dataReg* data, FILE* arquivoSaida);
 
 /**
  * @brief Lê as informações dos campos de um registro de dados.
@@ -152,5 +152,19 @@ int print_reg(dataReg* data);
  * 
  */
 int parameter_search(dataReg* data, int modoBusca, char* valorBuscado);
+
+void parameter_delete(dataReg* data, int modoBusca, char* valorBuscado);
+
+/**
+ * @brief Verifica se o campo possui o valor buscado
+ * 
+ * @param[in] data Estrutura de dados com as informações a serem buscadas.
+ * @param[in] modoBusca Define em qual dos campos deve-se fazer a verificação.
+ * @param[in] valorBuscado Valor que se procura no campo definido. 
+ * 
+ * @retval 0 Valor não encontrado no campo.
+ * @retval 1 Valor encontrado.
+ * 
+ */
 
 #endif
