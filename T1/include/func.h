@@ -73,4 +73,19 @@ void func3(char* arquivoEntrada, int numPares, argsBusca* args);
  */
 void func4(char* arquivoEntrada, int RRN);
 
+/**
+ * @brief Executa remoção lógica em arquivo binário.
+ * 
+ * Essa função recebe da main.c os critérios (pares Parâmetro/Valor) de busca, percorre o arquivo
+ * binário, comparando em cada registro as informações obtidas com os critérios de busca. A função
+ * utiliza uma flag interna que remove os registros enquanto ela estiver ativa (enquanto todos os 
+ * critério forem atendidos), mas que não o faz se ao menos um dos pares Parâmetro/Valor não for 
+ * atendido (flag desativada).
+ * 
+ * @param[in] arquivoEntrada Arquivo binário do qual serão removidos os registros.
+ * @param[in] numPares       Indica quantos pares Parâmetro/Valor, ou seja, critérios estão sendo utilizados
+ *                           na busca.
+ * @param[in] args           Estrutura que carrega tanto os Parâmetros quanto os Valores nele buscados.
+ */
+void func5(char* arquivoEntrada, int numRem);
 #endif

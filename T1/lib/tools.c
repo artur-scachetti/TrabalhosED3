@@ -20,7 +20,6 @@ void header_write(const headerReg* header, FILE* arquivoSaida)
     fwrite(&header->proxRRN, sizeof(int), 1, arquivoSaida);
     fwrite(&header->nroRegRem, sizeof(int), 1, arquivoSaida);
     fwrite(&header->nroPares, sizeof(int), 1, arquivoSaida);
-
 }
 
 void header_read(headerReg* header, FILE* arquivoEntrada)
@@ -41,6 +40,13 @@ void data_write(const dataReg* data, FILE* arquivoSaida)
     fwrite(&data->idPoPsConectado, sizeof(int), 1, arquivoSaida);
     fwrite(&data->velocidade, sizeof(int), 1, arquivoSaida);
     fwrite(&data->unidadeMedida, sizeof(char), 1, arquivoSaida);
+}
+
+void data_write_rem(const dataReg* data, FILE* arquivoSaida)
+{
+    fwrite(&data->removido, sizeof(char), 1, arquivoSaida);
+    fwrite(&data->encadeamentoPilha, sizeof(int), 1, arquivoSaida);
+    fwrite("$$$$$$$$$$$$$", 13*sizeof(char), 1, arquivoSaida);
 }
 
 int data_read(dataReg* data, FILE* arquivoEntrada)
@@ -70,19 +76,19 @@ void read_reg_csv(char* buffer, dataReg *data)
     for(int campo_atual = 0; campo_atual < 4; campo_atual++)
     {
         // Avança um dos cursores até a próxima ocorrência de ';'
-        cursor = strchr(cursor, ';');
-
         // Substitui o ponto e virgula por '\0' (criação de substring).
-        if (cursor != NULL) 
-        {
-            *cursor = '\0';
-            // Avança o cursor em um byte (início do próximo campo com dados)
-            cursor++;
+        if(cursor != NULL)
+        {  
+            cursor = strchr(cursor, ';');
+            if(cursor != NULL)
+            {
+                *cursor = '\0';
+                cursor++;
+            }
         }
+        
 
-        int campo_vazio = (inicioCampo[0] == '\0' || 
-                           inicioCampo[0] == '\n' || 
-                           inicioCampo[0] == '\r');
+        int campo_vazio = (inicioCampo == NULL || inicioCampo[0] == '\0' || inicioCampo[0] == '\n' || inicioCampo[0] == '\r');
 
         switch(campo_atual)
         {
@@ -130,8 +136,8 @@ int print_reg(dataReg* data)
 {
     int registro_existente = 0;
 
-    if(data->removido == '0') 
-    {
+    //if(data->removido == '0') 
+    //{
                 printf("%d %d ", data->idPoPs, data->idPoPsConectado);
 
                 // Realiza o tratamento de erros, tanto para velocidade
@@ -147,7 +153,7 @@ int print_reg(dataReg* data)
                     printf("\"%c\"\n", data->unidadeMedida);
 
                 registro_existente = 1;
-    }
+    //}
 
     return registro_existente;
 }

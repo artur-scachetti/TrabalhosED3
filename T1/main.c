@@ -5,9 +5,8 @@
 int main()
 {
     // Identifica a operação que o usuário quer realizar
-    int cmd;
+    int cmd = 0;
     scanf("%d", &cmd);
-
     switch(cmd)
     {
         case(1):
@@ -34,7 +33,7 @@ int main()
         case(3):
         {
             char arquivoEntradaBin[100];
-            int numConjuntos;
+            int numConjuntos = 0;
 
             // A variável "numConjuntos" indica quantas buscas com critério devem ser executadas
             scanf("%s %d", arquivoEntradaBin, &numConjuntos);
@@ -65,7 +64,7 @@ int main()
         case(4):
         {
             char arquivoEntradaBin[100];
-            int RRN;
+            int RRN = 0;
 
             scanf("%s %d", arquivoEntradaBin, &RRN);
             func4(arquivoEntradaBin, RRN);
@@ -74,7 +73,13 @@ int main()
         }
         case(5):
         {
+            char arquivoEntradaBin[100];
+            int numRem = 0;
 
+            scanf("%s %d", arquivoEntradaBin, &numRem);
+
+            func5(arquivoEntradaBin, numRem);
+            break;
         }
             break;
         
