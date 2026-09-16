@@ -68,6 +68,30 @@ typedef struct
 headerReg header_init();
 
 /**
+ * @brief Inicializa um registro de dados, a partir de 4 strings.
+ * 
+ * @param[in] idPops String do idPops
+ * @param[in] idPopsConectado String do idPops conectado
+ * @param[in] velocidade String da velocidade
+ * @param[in] unidadeMedida String da unidade de medida
+ * 
+ * @return Um registro de dados data, com os valores inseridos, substituindo os campos inteiros nulos por -1, 
+ * e os campos de string nulos por $. Inicializa removido como 0 e o campo de encadeamento como -1.
+ * 
+ */
+dataReg data_Cria(char* idPoPs, char* idPoPsConectado, char* velocidade, char* unidadeMedida);
+
+/**
+ * @brief Atualiza um campo de um registro de dados
+ * 
+ * @param[in] data Registro a ser atualizado
+ * @param[in] nomeCampo Campo a ser atualizado
+ * @param[in] valorCampo Valor a ser atribuído ao campo
+ * 
+ */
+void data_Atualiza(dataReg* data, char* nomeCampo, char*valorCampo);
+
+/**
  * @brief Escreve informações nos campos de um registro de cabeçalho.
  * 
  * @param[in] header Estrutura de cabeçalho de onde os dados serão lidos e passados para o arquivo.

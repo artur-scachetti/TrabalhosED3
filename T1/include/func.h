@@ -80,7 +80,7 @@ void func4(char* arquivoEntrada, int RRN);
  * binário, comparando em cada registro as informações obtidas com os critérios de busca. A função
  * utiliza uma flag interna que remove os registros enquanto ela estiver ativa (enquanto todos os 
  * critério forem atendidos), mas que não o faz se ao menos um dos pares Parâmetro/Valor não for 
- * atendido (flag desativada).
+ * atendido (flag desativada). Ao final, printa o valor do binário na tela.
  * 
  * @param[in] arquivoEntrada Arquivo binário do qual serão removidos os registros.
  * @param[in] numPares       Indica quantos pares Parâmetro/Valor, ou seja, critérios estão sendo utilizados
@@ -88,4 +88,34 @@ void func4(char* arquivoEntrada, int RRN);
  * @param[in] args           Estrutura que carrega tanto os Parâmetros quanto os Valores nele buscados.
  */
 void func5(char* arquivoEntrada, int numRem);
+
+/**
+ * @brief Executa inserção em arquivo binário
+ * 
+ * Recebe da main.c o arquivo de entrada, na qual a inserção será realizada, tal qual o número n de registros a serem inseridos.
+ * Para cada n, executa a leitura de 4 strings, cada qual correspondente a um campo do registro, e cria um campo data com essas 
+ * informações. Para a inserção, verifica se existem registros removidos, caso não exista nenhum, insere no proxRRN informado pelo 
+ * cabeçalho do arquivo de entrada, atualizando o mesmo. Caso existam, insere no primeiro campo excluído informado, desempilhando
+ * o mesmo.
+ * 
+ * @param[in] arquivoEntrada Arquivo binário no qual serão inseridos os registros.
+ * @param[in] numEntradas    Indica quantas inserções serão realizadas.
+ * 
+ */
+void func6(char* arquivoEntrada, int numEntradas);
+
+/**
+ * @brief Executa atualização em arquivo binário
+ * 
+ * Recebe da main.c o arquivo de entrada, na qual a inserção será realizada, tal qual o número n de registros a serem inseridos.
+ * Para cada n, executa a leitura de 4 strings, cada qual correspondente a um campo do registro, e cria um campo data com essas 
+ * informações. Para a inserção, verifica se existem registros removidos, caso não exista nenhum, insere no proxRRN informado pelo 
+ * cabeçalho do arquivo de entrada, atualizando o mesmo. Caso existam, insere no primeiro campo excluído informado, desempilhando
+ * o mesmo.
+ * 
+ * @param[in] arquivoEntrada Arquivo binário no qual serão inseridos os registros.
+ * @param[in] numAtt         Indica quantas inserções serão realizadas.
+ * 
+ */
+void func7(char* arquivoEntrada, int numAtt);
 #endif

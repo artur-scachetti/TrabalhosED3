@@ -1,4 +1,5 @@
 #include "tools.h"
+#include "fornecidas.h"
 
 headerReg header_init()
 {
@@ -63,6 +64,68 @@ int data_read(dataReg* data, FILE* arquivoEntrada)
     return 1;
 }
 
+dataReg data_Cria(char* idPoPs, char* idPoPsConectado, char* velocidade, char* unidadeMedida)
+{
+    dataReg data;
+
+    data.removido = '0';
+    data.encadeamentoPilha = -1;
+
+    if(strcmp(idPoPs, "NULO") == 0)
+        data.idPoPs = -1;
+    else  
+        data.idPoPs = atoi(idPoPs);
+
+    if(strcmp(idPoPsConectado, "NULO") == 0)
+        data.idPoPsConectado = -1;
+    else  
+        data.idPoPsConectado = atoi(idPoPsConectado);
+
+    if(strcmp(velocidade, "NULO") == 0)
+        data.velocidade = -1;
+    else  
+        data.velocidade = atoi(velocidade);
+    
+    if (strcmp(unidadeMedida, "") == 0) 
+        strcpy(&data.unidadeMedida, "$");
+    else 
+        data.unidadeMedida = unidadeMedida[0];
+
+    return data;
+}
+
+void data_Atualiza(dataReg* data, char* nomeCampo, char* valorCampo)
+{
+    if(strcmp(nomeCampo, "idPoPs") == 0)
+    {
+        if(strcmp(valorCampo, "NULO") == 0)
+            data->idPoPs = -1;
+        else  
+            data->idPoPs = atoi(valorCampo);
+    }
+    if(strcmp(nomeCampo, "idPoPsConectado") == 0)
+    {
+        if(strcmp(valorCampo, "NULO") == 0)
+            data->idPoPsConectado = -1;
+        else  
+            data->idPoPsConectado = atoi(valorCampo);
+    }
+    if(strcmp(nomeCampo, "velocidade") == 0)
+    {
+        if(strcmp(valorCampo, "NULO") == 0)
+            data->velocidade = -1;
+        else  
+            data->velocidade = atoi(valorCampo);
+    }
+    if(strcmp(nomeCampo, "unidadeMedida") == 0)
+    {
+        if (strcmp(valorCampo, "") == 0) 
+            data->unidadeMedida = '$';
+        else 
+            data->unidadeMedida = valorCampo[0];
+    }
+}
+
 void read_reg_csv(char* buffer, dataReg *data)
 {
     char *cursor = buffer;
@@ -77,16 +140,12 @@ void read_reg_csv(char* buffer, dataReg *data)
     {
         // Avança um dos cursores até a próxima ocorrência de ';'
         // Substitui o ponto e virgula por '\0' (criação de substring).
+        cursor = strchr(cursor, ',');
         if(cursor != NULL)
-        {  
-            cursor = strchr(cursor, ';');
-            if(cursor != NULL)
-            {
-                *cursor = '\0';
-                cursor++;
-            }
+        {
+            *cursor = '\0';
+            cursor++;
         }
-        
 
         int campo_vazio = (inicioCampo == NULL || inicioCampo[0] == '\0' || inicioCampo[0] == '\n' || inicioCampo[0] == '\r');
 
@@ -197,7 +256,7 @@ int parameter_search(dataReg* data, int modoBusca, char* valorBuscado)
         case 4: 
             char valorChar;
 
-            if (strcmp(valorBuscado, "NULO") == 0)
+            if (strcmp(valorBuscado, "NULO") == 0 || strcmp(valorBuscado, "") == 0)
                 valorChar = '$';
             else
                 valorChar = valorBuscado[0];
