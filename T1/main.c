@@ -81,20 +81,25 @@ int main()
             func5(arquivoEntradaBin, numRem);
             break;
         }
-            break;
-        
         case(6):
         {
+            char arquivoEntrada[100];
+            int numEntradas = 0;
 
-        }
+            scanf("%s %d", arquivoEntrada, &numEntradas);
+
+            func6(arquivoEntrada, numEntradas);
             break;
-
+        }
         case(7):
         {
+            char arquivoEntrada[100];
+            int numAtt = 0;
 
-        }
+            scanf("%s %d", arquivoEntrada, &numAtt);
+
+            func7(arquivoEntrada, numAtt);
             break;
-            
-            
+        }      
     }
 }
