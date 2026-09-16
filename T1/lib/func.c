@@ -220,7 +220,7 @@ void func5(char* arquivoEntrada, int numRem)
             for(int j = 0; j < numPares; j++)
                 scanf("%s %s", args[j].nomesCampo, args[j].valoresCampo);
             
-            fseek(fEntrada, 17, SEEK_SET);
+            fseek(fEntrada, HEADER_SIZE, SEEK_SET);
 
             dataReg data;
             int RRN = 0;
@@ -259,7 +259,7 @@ void func5(char* arquivoEntrada, int numRem)
                         header.topoPilha = RRN;
                         header.nroRegRem++;
                         
-                        fseek(fEntrada, -18, SEEK_CUR);
+                        fseek(fEntrada, -BYTES_PER_REG, SEEK_CUR);
                         data_write_rem(&data, fEntrada);
                     }
                 }
@@ -310,7 +310,7 @@ void func6(char* arquivoEntrada, int numEntradas)
             if(header.nroRegRem == 0)
             {
                 RRN = header.proxRRN;
-                fseek(fEntrada, 17 + 18*RRN, SEEK_SET);
+                fseek(fEntrada, HEADER_SIZE + BYTES_PER_REG*RRN, SEEK_SET);
                 data_write(&data, fEntrada);
                 header.proxRRN++;
             }
@@ -319,13 +319,13 @@ void func6(char* arquivoEntrada, int numEntradas)
                 dataReg data2;
                 RRN = header.topoPilha;
 
-                fseek(fEntrada, 17 + 18*RRN, SEEK_SET);
+                fseek(fEntrada, HEADER_SIZE + BYTES_PER_REG*RRN, SEEK_SET);
                 data_read(&data2, fEntrada);
 
                 header.topoPilha = data2.encadeamentoPilha;
                 header.nroRegRem--;
 
-                fseek(fEntrada, 17 + 18*RRN, SEEK_SET);
+                fseek(fEntrada, HEADER_SIZE + BYTES_PER_REG*RRN, SEEK_SET);
                 data_write(&data, fEntrada);
             }
         }
@@ -389,7 +389,7 @@ void func7(char* arquivoEntrada, int numAtt)
                 else
                     scanf("%s", argsAtt[j].valoresCampo);
             }
-            fseek(fEntrada, 17, SEEK_SET);
+            fseek(fEntrada, HEADER_SIZE, SEEK_SET);
 
             dataReg data;
 
@@ -426,7 +426,7 @@ void func7(char* arquivoEntrada, int numAtt)
                         {
                             data_Atualiza(&data, argsAtt[k].nomesCampo, argsAtt[k].valoresCampo);
                         }       
-                        fseek(fEntrada, -18, SEEK_CUR);
+                        fseek(fEntrada, -BYTES_PER_REG, SEEK_CUR);
                         data_write(&data, fEntrada);
 
                         fseek(fEntrada, 0, SEEK_CUR);
