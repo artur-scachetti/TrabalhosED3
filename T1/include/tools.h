@@ -18,10 +18,15 @@
 
 /** Refere-se ao número de bytes presentes em um registro de dados
  *  removido + tamanhoPilha + idPoPs + idPoPsConectado + velocidade + unidadeMedida
- *      1    +       4      +    4   +         4       +      4     +       1       =  18 
+ *      1    +       4      +    4   +         4       +      4     +       1       =  18
  */ 
-#define BYTES_PER_REG   18
-#define HEADER_SIZE     17
+#define BYTES_PER_REG       18
+
+/** Refere-se ao número de bytes presentes em um registro de header
+ *  status + topoPilha + proxRRN + nroRegRem + nroPares
+ *    1    +     4     +   4     +     4     +    4      =  17
+ */
+#define BYTES_PER_HEADER    17
 
 /**
  * @brief Estrutura que define os campos de um registro de cabeçalho.

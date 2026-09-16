@@ -31,10 +31,13 @@ void func1(char* arquivoEntrada, char* arquivoSaida)
         // Em caso de sucesso, marca o arquivo como consistente e atualiza o 
         // número de registros presentes.
         header.status = '1';
+        header.proxRRN = registros;
         header.nroPares = registros;
         header_write(&header, fSaida);
+
         fclose(fEntrada);
         fclose(fSaida);
+        
         BinarioNaTela(arquivoSaida);
     }
     else 
@@ -110,7 +113,7 @@ void func3(char* arquivoEntrada, int numPares, argsBusca* args)
                     char* nomeBusca = args[i].nomesCampo;
                     char* valorBusca = args[i].valoresCampo;
 
-                    int modoBusca = 0;
+                    int modoBusca;
 
                     if (strcmp(nomeBusca, "idPoPs") == 0) 
                         modoBusca = 1;
@@ -162,33 +165,43 @@ void func3(char* arquivoEntrada, int numPares, argsBusca* args)
 
 void func4(char* arquivoEntrada, int RRN)
 {
-    FILE* fEntrada = NULL;
+    FILE* fEntrada;
+
+    headerReg header;
     dataReg data;
 
     int registro_existente = 0;
 
     // Fórmula matemática que usa o tamanho do registro e o
     // número do registro que se quer recuperar.
-    int byteOffset = RRN * BYTES_PER_REG;
+    int byteOffset = (1 * BYTES_PER_HEADER) + (RRN * BYTES_PER_REG);
 
-    if((fEntrada = fopen(arquivoEntrada, "rb")) != 0)
-    {
-        if(fseek(fEntrada, byteOffset, SEEK_SET) != 0)
-        {
-            data_read(&data, fEntrada);
+    if((fEntrada = fopen(arquivoEntrada, "rb")) != NULL){
 
-            registro_existente = print_reg(&data);
+        header_read(&header, fEntrada);
+
+        if (header.status == '0'){
+            printf("Falha no processamento do arquivo.\n");
+
+            fclose(fEntrada);
+            return;
         }
 
-        if(registro_existente == 0)
-            printf("Registro inexistente.\n");
+        if(fseek(fEntrada, byteOffset, SEEK_SET) == 0){
 
+            data_read(&data, fEntrada);
+            registro_existente = print_reg(&data);
+
+            if(registro_existente == 0){
+            printf("Registro inexistente.\n");
+            }
+        }
+   
         fclose(fEntrada);
     }
     else printf("Falha no processamento do arquivo.");
 
     return;
-
 }
 
 void func5(char* arquivoEntrada, int numRem) 
@@ -220,7 +233,7 @@ void func5(char* arquivoEntrada, int numRem)
             for(int j = 0; j < numPares; j++)
                 scanf("%s %s", args[j].nomesCampo, args[j].valoresCampo);
             
-            fseek(fEntrada, HEADER_SIZE, SEEK_SET);
+            fseek(fEntrada, BYTES_PER_HEADER, SEEK_SET);
 
             dataReg data;
             int RRN = 0;
@@ -310,7 +323,7 @@ void func6(char* arquivoEntrada, int numEntradas)
             if(header.nroRegRem == 0)
             {
                 RRN = header.proxRRN;
-                fseek(fEntrada, HEADER_SIZE + BYTES_PER_REG*RRN, SEEK_SET);
+                fseek(fEntrada, BYTES_PER_HEADER + BYTES_PER_REG*RRN, SEEK_SET);
                 data_write(&data, fEntrada);
                 header.proxRRN++;
             }
@@ -319,13 +332,13 @@ void func6(char* arquivoEntrada, int numEntradas)
                 dataReg data2;
                 RRN = header.topoPilha;
 
-                fseek(fEntrada, HEADER_SIZE + BYTES_PER_REG*RRN, SEEK_SET);
+                fseek(fEntrada, BYTES_PER_HEADER + BYTES_PER_REG*RRN, SEEK_SET);
                 data_read(&data2, fEntrada);
 
                 header.topoPilha = data2.encadeamentoPilha;
                 header.nroRegRem--;
 
-                fseek(fEntrada, HEADER_SIZE + BYTES_PER_REG*RRN, SEEK_SET);
+                fseek(fEntrada, BYTES_PER_HEADER + BYTES_PER_REG*RRN, SEEK_SET);
                 data_write(&data, fEntrada);
             }
         }
@@ -389,7 +402,7 @@ void func7(char* arquivoEntrada, int numAtt)
                 else
                     scanf("%s", argsAtt[j].valoresCampo);
             }
-            fseek(fEntrada, HEADER_SIZE, SEEK_SET);
+            fseek(fEntrada, BYTES_PER_HEADER, SEEK_SET);
 
             dataReg data;
 
