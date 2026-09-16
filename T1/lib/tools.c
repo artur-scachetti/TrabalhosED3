@@ -1,4 +1,5 @@
 #include "tools.h"
+#include "fornecidas.h"
 
 headerReg header_init()
 {
@@ -79,7 +80,7 @@ void read_reg_csv(char* buffer, dataReg *data)
         // Substitui o ponto e virgula por '\0' (criação de substring).
         if(cursor != NULL)
         {  
-            cursor = strchr(cursor, ';');
+            cursor = strchr(cursor, ',');
             if(cursor != NULL)
             {
                 *cursor = '\0';
@@ -136,24 +137,24 @@ int print_reg(dataReg* data)
 {
     int registro_existente = 0;
 
-    //if(data->removido == '0') 
-    //{
-                printf("%d %d ", data->idPoPs, data->idPoPsConectado);
+    if(data->removido == '0') 
+    {
+        printf("%d %d ", data->idPoPs, data->idPoPsConectado);
 
-                // Realiza o tratamento de erros, tanto para velocidade
-                // quanto para unidade de medida.
-                if (data->velocidade == -1) 
-                    printf("NULO ");
-                else 
-                    printf("%d ", data->velocidade);
+        // Realiza o tratamento de erros, tanto para velocidade
+        // quanto para unidade de medida.
+        if (data->velocidade == -1) 
+            printf("NULO ");
+        else 
+            printf("%d ", data->velocidade);
 
-                if (data->unidadeMedida == '$') 
-                    printf("NULO\n");
-                else 
-                    printf("\"%c\"\n", data->unidadeMedida);
+        if (data->unidadeMedida == '$') 
+            printf("NULO\n");
+        else 
+            printf("\"%c\"\n", data->unidadeMedida);
 
-                registro_existente = 1;
-    //}
+         registro_existente = 1;
+    }
 
     return registro_existente;
 }
@@ -200,6 +201,7 @@ int parameter_search(dataReg* data, int modoBusca, char* valorBuscado)
             if (strcmp(valorBuscado, "NULO") == 0)
                 valorChar = '$';
             else
+            
                 valorChar = valorBuscado[0];
 
             return (data->unidadeMedida == valorChar);

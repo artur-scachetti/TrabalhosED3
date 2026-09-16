@@ -53,7 +53,14 @@ int main()
                 {
                     // Percorre-se todos os pares, armazenando tanto o nome do parâmetro buscado, quanto
                     // o valor nele buscado.
-                    scanf("%s %s", args[j].nomesCampo, args[j].valoresCampo);
+                    scanf("%s", args[j].nomesCampo);
+
+                    if(strcmp(args[j].nomesCampo, "unidadeMedida") == 0){
+
+                        ScanQuoteString(args[j].valoresCampo);
+                    }
+                    else scanf("%s", args[j].valoresCampo);
+
                 }
 
                 func3(arquivoEntradaBin, numPares, args);
