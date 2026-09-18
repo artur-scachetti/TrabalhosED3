@@ -113,26 +113,7 @@ void func3(char* arquivoEntrada, int numPares, argsBusca* args)
                     char* nomeBusca = args[i].nomesCampo;
                     char* valorBusca = args[i].valoresCampo;
 
-                    int modoBusca;
-
-                    if (strcmp(nomeBusca, "idPoPs") == 0) 
-                        modoBusca = 1;
-
-                    else if (strcmp(nomeBusca, "idPoPsConectado") == 0) 
-                        modoBusca = 2;
-
-                    else if (strcmp(nomeBusca, "velocidade") == 0) 
-                        modoBusca = 3;
-
-                    else if (strcmp(nomeBusca, "unidadeMedida") == 0) 
-                        modoBusca = 4;
-
-                    else 
-                    {
-                        printf("Falha no processamento do arquivo.\n");
-                        fclose(fEntrada);
-                        return;
-                    }
+                    int modoBusca = get_search_mode(args[i].nomesCampo);
                     
                     // Basta que um dos critérios falhem para que este bloco seja executado
                     // o que quebra o loop com resultado de falha.
@@ -245,18 +226,7 @@ void func5(char* arquivoEntrada, int numRem)
                     int sucesso = 1;
                     for(int j = 0; j < numPares; j++)
                     {
-                        int modoBusca = 0;
-                        if (strcmp(args[j].nomesCampo, "idPoPs") == 0) 
-                            modoBusca = 1;
-
-                        else if (strcmp(args[j].nomesCampo, "idPoPsConectado") == 0) 
-                            modoBusca = 2;
-
-                        else if (strcmp(args[j].nomesCampo, "velocidade") == 0) 
-                            modoBusca = 3;
-
-                        else if (strcmp(args[j].nomesCampo, "unidadeMedida") == 0) 
-                            modoBusca = 4;
+                        int modoBusca = get_search_mode(args[j].nomesCampo);
 
                         if (!parameter_search(&data, modoBusca, args[j].valoresCampo))
                         {
@@ -413,18 +383,7 @@ void func7(char* arquivoEntrada, int numAtt)
                     int sucesso = 1;
                     for(int j = 0; j < numParesBusca; j++)
                     {
-                        int modoBusca = 0;
-                        if (strcmp(argsBusc[j].nomesCampo, "idPoPs") == 0) 
-                            modoBusca = 1;
-
-                        else if (strcmp(argsBusc[j].nomesCampo, "idPoPsConectado") == 0) 
-                            modoBusca = 2;
-
-                        else if (strcmp(argsBusc[j].nomesCampo, "velocidade") == 0) 
-                            modoBusca = 3;
-
-                        else if (strcmp(argsBusc[j].nomesCampo, "unidadeMedida") == 0) 
-                            modoBusca = 4;
+                        int modoBusca = get_search_mode(argsBusc[j].nomesCampo);
 
                         if (!parameter_search(&data, modoBusca, argsBusc[j].valoresCampo))
                         {

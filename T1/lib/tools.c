@@ -218,6 +218,15 @@ int print_reg(dataReg* data)
     return registro_existente;
 }
 
+int get_search_mode(char* nomeCampo) 
+{
+    if (strcmp(nomeCampo, "idPoPs") == 0) return 1;
+    if (strcmp(nomeCampo, "idPoPsConectado") == 0) return 2;
+    if (strcmp(nomeCampo, "velocidade") == 0) return 3;
+    if (strcmp(nomeCampo, "unidadeMedida") == 0) return 4;
+    return 0;
+}
+
 int parameter_search(dataReg* data, int modoBusca, char* valorBuscado) 
 {
     int valor;

@@ -170,6 +170,8 @@ void read_reg_csv(char* buffer, dataReg *data);
  */
 int print_reg(dataReg* data);
 
+int get_search_mode(char* nomeCampo);
+
 /**
  * @brief Verifica se o campo possui o valor buscado.
  * 
