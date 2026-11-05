@@ -1,6 +1,5 @@
 #include "tools.h"
 #include "fornecidas.h"
-#include "fornecidas.h"
 
 headerReg header_init()
 {
@@ -38,18 +37,23 @@ void data_write(const dataReg* data, FILE* arquivoSaida)
 {
     fwrite(&data->removido, sizeof(char), 1, arquivoSaida);
     fwrite(&data->tamanhoRegistro, sizeof(int), 1, arquivoSaida);
-    fwrite(&data->encadeamentoLista, sizeof(int), 1, arquivoSaida);
+    fwrite(&data->encadeamentoLista, sizeof(int), 2, arquivoSaida);
     fwrite(&data->idPoPs, sizeof(int), 1, arquivoSaida);
-    fwrite(&data->siglaPais, 2, 1, arquivoSaida);
-    fwrite(&data->nomePais, sizeof(data->nomePais), 1, arquivoSaida);
-    fwrite(&data->nomePops, sizeof(data->nomePops), 1, arquivoSaida);
+    fwrite(&data->siglaPais, sizeof(char), 2, arquivoSaida);
+    fwrite(data->nomePops, sizeof(char), strlen(data->nomePops), arquivoSaida);
+    fwrite("|", sizeof(char), 1, arquivoSaida);
+    fwrite(data->nomePais, sizeof(char), strlen(data->nomePais), arquivoSaida);
+    fwrite("|", sizeof(char), 1, arquivoSaida);
 }
 
 void data_write_rem(const dataReg* data, FILE* arquivoSaida)
 {
     fwrite(&data->removido, sizeof(char), 1, arquivoSaida);
+    fwrite(&data->tamanhoRegistro, sizeof(int), 1, arquivoSaida);
     fwrite(&data->encadeamentoLista, sizeof(int), 1, arquivoSaida);
-    fwrite("$$$$$$$$", 8*sizeof(char), 1, arquivoSaida);
+
+    for(int i = 0; i < data->tamanhoRegistro - 13; i++)
+        fwrite("$", sizeof(char), 1, arquivoSaida);
 }
 
 int data_read(dataReg* data, FILE* arquivoEntrada)
@@ -57,6 +61,7 @@ int data_read(dataReg* data, FILE* arquivoEntrada)
     if(fread(&data->removido, sizeof(char), 1, arquivoEntrada) != 1)
         return 0;
 
+    fread(&data->tamanhoRegistro, sizeof(int), 1, arquivoEntrada);
     fread(&data->encadeamentoLista, sizeof(int), 1, arquivoEntrada);
     fread(&data->idPoPs, sizeof(int), 1, arquivoEntrada);
     fread(&data->siglaPais, 2, 1, arquivoEntrada);
@@ -66,32 +71,42 @@ int data_read(dataReg* data, FILE* arquivoEntrada)
     return 1;
 }
 
-dataReg data_Cria(char* idPoPs, char* siglaPais, char** nomePops, char** nomePais)
+void contaTam(dataReg* data)
+{
+    data->tamanhoRegistro = sizeof(char)
+                          + sizeof(int)
+                          + sizeof(long long)
+                          + sizeof(int)
+                          + 2 * sizeof(char)
+                          + strlen(data->nomePops) + 1
+                          + strlen(data->nomePais) + 1;
+}
+
+dataReg data_Cria(char* idPoPs, char* siglaPais, char* nomePops, char* nomePais)
 {
     dataReg data;
 
     data.removido = '0';
     data.encadeamentoLista = -1;
 
-    if(strcmp(idPoPs, "NULO") == 0)
-        data.idPoPs = -1;
-    else  
-        data.idPoPs = atoi(idPoPs);
+    data.idPoPs = atoi(idPoPs);
 
     if(strcmp(siglaPais, "NULO") == 0)
-        strcpy(data.siglaPais,"$");
-    else  
+        strcpy(data.siglaPais, "$$");
+    else
         strcpy(data.siglaPais, siglaPais);
 
-    if(strcmp(*nomePops, "NULO") == 0)
-        strcpy(*data.nomePops, "$");
-    else  
-        strcpy(*data.nomePops, *nomePops);
-    
-    if (strcmp(*nomePais, "") == 0) 
-        strcpy(*data.nomePais, "$");
-    else 
-        strcpy(*data.nomePais, *nomePais);
+    if(strcmp(nomePops, "NULO") == 0)
+        data.nomePops[0] = '\0';
+    else
+        strcpy(data.nomePops, nomePops);
+
+    if(strcmp(nomePais, "NULO") == 0)
+        data.nomePais[0] = '\0';
+    else
+        strcpy(data.nomePais, nomePais);
+
+    contaTam(&data);
 
     return data;
 }
@@ -100,97 +115,98 @@ void data_Atualiza(dataReg* data, char* nomeCampo, char* valorCampo)
 {
     if(strcmp(nomeCampo, "idPoPs") == 0)
     {
-        if(strcmp(valorCampo, "NULO") == 0)
-            data->idPoPs = -1;
-        else  
+        if(strcmp(valorCampo, "NULO") != 0)
             data->idPoPs = atoi(valorCampo);
     }
-    if(strcmp(nomeCampo, "idPoPsConectado") == 0)
+
+    else if(strcmp(nomeCampo, "siglaPais") == 0)
     {
         if(strcmp(valorCampo, "NULO") == 0)
-            data->idPoPsConectado = -1;
-        else  
-            data->idPoPsConectado = atoi(valorCampo);
+            strcpy(data->siglaPais, "$$");
+        else
+            strcpy(data->siglaPais, valorCampo);
     }
-    if(strcmp(nomeCampo, "velocidade") == 0)
+
+    else if(strcmp(nomeCampo, "nomePops") == 0)
     {
         if(strcmp(valorCampo, "NULO") == 0)
-            data->velocidade = -1;
-        else  
-            data->velocidade = atoi(valorCampo);
+            data->nomePops[0] = '\0';
+        else
+            strcpy(data->nomePops, valorCampo);
     }
-    if(strcmp(nomeCampo, "unidadeMedida") == 0)
+
+    else if(strcmp(nomeCampo, "nomePais") == 0)
     {
-        if (strcmp(valorCampo, "") == 0) 
-            data->unidadeMedida = '$';
-        else 
-            data->unidadeMedida = valorCampo[0];
+        if(strcmp(valorCampo, "NULO") == 0)
+            data->nomePais[0] = '\0';
+        else
+            strcpy(data->nomePais, valorCampo);
     }
+
+    contaTam(data);
 }
 
-void read_reg_csv(char* buffer, dataReg *data)
+void read_reg_csv(char* buffer, dataReg* data)
 {
-    char *cursor = buffer;
-    char *inicioCampo = buffer;
+    char* cursor = buffer;
+    char* inicioCampo = buffer;
 
-    data->removido = '0'; 
-    data->encadeamentoPilha = -1;
+    data->removido = '0';
+    data->encadeamentoLista = -1;
 
-    // Avança os cursores 3 vezes (pois são 4 campos a serem lidos).
-    // Isso leva em conta que o primeiro campo já é lido na inicialização.
     for(int campo_atual = 0; campo_atual < 4; campo_atual++)
     {
-        // Avança um dos cursores até a próxima ocorrência de ';'
-        // Substitui o ponto e virgula por '\0' (criação de substring).
-        cursor = strchr(cursor, ',');
+        cursor = strchr(inicioCampo, ',');
+
         if(cursor != NULL)
         {
             *cursor = '\0';
             cursor++;
         }
 
-        int campo_vazio = (inicioCampo == NULL || inicioCampo[0] == '\0' || inicioCampo[0] == '\n' || inicioCampo[0] == '\r');
+        if(inicioCampo != NULL)
+            inicioCampo[strcspn(inicioCampo, "\r\n")] = '\0';
+
+        int campo_vazio = (inicioCampo == NULL || inicioCampo[0] == '\0');
 
         switch(campo_atual)
         {
-            case(0):
-                // Em caso de campo não vazio, transfere o conteúdo
-                // da substring para o campo da estrutura de dados.
+            case 0:
                 if(!campo_vazio)
                     data->idPoPs = atoi(inicioCampo);
-                else 
+                else
                     data->idPoPs = -1;
-
                 break;
 
-            case(1):
+            case 1:
                 if(!campo_vazio)
-                    data->idPoPsConectado = atoi(inicioCampo);
-                else 
-                    data->idPoPsConectado = -1;
-
+                {
+                    strncpy(data->siglaPais, inicioCampo, 2);
+                    data->siglaPais[2] = '\0';
+                }
+                else
+                    strcpy(data->siglaPais, "$$");
                 break;
 
-            case(2):
+            case 2:
                 if(!campo_vazio)
-                    data->velocidade = atoi(inicioCampo);
-                else 
-                    data->velocidade = -1;
-
+                    strcpy(data->nomePops, inicioCampo);
+                else
+                    data->nomePops[0] = '\0';
                 break;
 
-            case(3):
+            case 3:
                 if(!campo_vazio)
-                    data->unidadeMedida = inicioCampo[0];
-                else 
-                    data->unidadeMedida = '$';
-
+                    strcpy(data->nomePais, inicioCampo);
+                else
+                    data->nomePais[0] = '\0';
                 break;
         }
 
-        // Volta a sincronizar os cursores.
         inicioCampo = cursor;
     }
+
+    contaTam(data);
 }
 
 int print_reg(dataReg* data)
@@ -222,9 +238,9 @@ int print_reg(dataReg* data)
 int get_search_mode(char* nomeCampo) 
 {
     if (strcmp(nomeCampo, "idPoPs") == 0) return 1;
-    if (strcmp(nomeCampo, "idPoPsConectado") == 0) return 2;
-    if (strcmp(nomeCampo, "velocidade") == 0) return 3;
-    if (strcmp(nomeCampo, "unidadeMedida") == 0) return 4;
+    if (strcmp(nomeCampo, "siglaPais") == 0) return 2;
+    if (strcmp(nomeCampo, "nomePops") == 0) return 3;
+    if (strcmp(nomeCampo, "nomePais") == 0) return 4;
     return 0;
 }
 

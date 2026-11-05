@@ -49,9 +49,9 @@ typedef struct
     int tamanhoRegistro; /**< Número de bytes do registro */
     int encadeamentoLista; /**< Byteoffset do próximo registro removido */
     int idPoPs; /**< ID do PoPs */
-    char siglaPais[2]; /**< Sigla do país */
-    char* nomePops; /**< Nome do Pops */
-    char* nomePais; /**< Nome do pais */
+    char siglaPais[3]; /**< Sigla do país */
+    char nomePops[100]; /**< Nome do Pops */
+    char nomePais[100]; /**< Nome do pais */
 } dataReg;
 
 /**
@@ -95,7 +95,14 @@ headerReg header_init();
  * e os campos de string nulos por $. Inicializa removido como 0 e o campo de encadeamento como -1.
  * 
  */
-dataReg data_Cria(char* idPoPs, char* idPoPsConectado, char** nomePops, char** nomePais);
+dataReg data_Cria(char* idPoPs, char* idPoPsConectado, char* nomePops, char* nomePais);
+
+/**
+ * @brief Conta e atualiza o tamanho de um registro
+ * 
+ * @param[in] data registro a ser analizado
+ */
+void contaTam(dataReg* data);
 
 /**
  * @brief Atualiza um campo de um registro de dados
