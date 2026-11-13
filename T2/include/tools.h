@@ -16,17 +16,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-/** Refere-se ao número de bytes presentes em um registro de dados
- *  removido + tamanhoPilha + idPoPs + idPoPsConectado + velocidade + unidadeMedida
- *      1    +       4      +    4   +         4       +      4     +       1       =  18
+/** Refere-se ao número de bytes de registros fixos presentes em um registro de dados
+ *  encadeamentoLista +  idPoPs + siglaPais 
+ *      8             +    4    +     2       =  14
  */ 
-#define BYTES_PER_REG       18
+#define FIXED_BYTES_PER_REG       14
+
+/** Refere-se ao número de bytes presentes em um registro de header
+ *  idPoPs + byteOffset
+ *    4    +     8      =  12
+ */
+#define BYTES_PER_IDX_REG       12
 
 /** Refere-se ao número de bytes presentes em um registro de header
  *  status + topoPilha + proxOff + nroRegRem + nroPares
  *    1    +     4     +   4     +     4     +    4      =  17
  */
-#define BYTES_PER_HEADER    17
+#define BYTES_PER_HEADER        25
+
+// Define os macros para decidir os tipos de busca
+#define INDEX_SEARCH            0
+#define PARAMETER_SEARCH        1
+
+// Define a ação a ser tomada pelos algoritmos de pesquisa
+#define PRINT_MODE              0
+#define DELETE_MODE             1
+#define UPDATE_MODE             2
 
 /**
  * @brief Estrutura que define os campos de um registro de cabeçalho.
@@ -34,10 +49,11 @@
 typedef struct 
 {
     char status; /**< Indica se o arquivo está consistente ('1') ou não ('0') */
-    int topoPilha; /**< RRN do registro removido mais recente (-1 caso não haja) */
-    int proxOff;  /**< Próximo RRN disponível */
+    long long int topoPilha; /**< RRN do maior registro removido (-1 caso não haja) */
+    long long int proxOff;  /**< Próximo RRN disponível */
     int nroRegRem; /**< Número de registros marcados como removidos */
-    int nroPares; /**< Número de pares idPoPs e idPoPsConectado (número de registros distintos) */
+    int nroPoPs; /**< Número de pares idPoPs e idPoPsConectado (número de registros distintos) */
+
 } headerReg;
 
 /**
@@ -47,12 +63,20 @@ typedef struct
 {
     char removido; /**< Indica se o registro está removido ('1') ou não ('0') */
     int tamanhoRegistro; /**< Número de bytes do registro */
-    int encadeamentoLista; /**< Byteoffset do próximo registro removido */
+    long long int encadeamentoLista; /**< Byteoffset do próximo registro removido */
     int idPoPs; /**< ID do PoPs */
-    char siglaPais[3]; /**< Sigla do país */
-    char nomePops[100]; /**< Nome do Pops */
-    char nomePais[100]; /**< Nome do pais */
+    char siglaPais[2]; /**< Sigla do país */
+    char* nomePops; /**< Nome do Pops */
+    char* nomePais; /**< Nome do pais */
 } dataReg;
+
+/**
+ * @brief Estrutura que define os campos de um registro de cabeçalho do arquivo de índice primário
+ */
+typedef struct
+{
+    char status; /**< Indica se o registro está removido ('1') ou não ('0')  */
+} indexHeader;
 
 /**
  * @brief Estrutura que define os campos de um registro de dados do arquivo de índice primário
@@ -60,7 +84,7 @@ typedef struct
 typedef struct
 {
     int idPops; /**< ID do PoPs */
-    int byteOffset; /**< byteoffset do registro */
+    long long int byteOffset; /**< byteoffset do registro */
 } indexReg;
 
 /**
@@ -131,7 +155,7 @@ void header_write(const headerReg* header, FILE* arquivoSaida);
  * @param[in] arquivoEntrada Arquivo do qual as informações de cabeçalho serão lidas.
  * 
  */
-void header_read(headerReg* header, FILE* arquivoEntrada);
+int header_read(headerReg* header, FILE* arquivoEntrada);
 
 /**
  * @brief Escreve informações nos campos de um registro de dados.
@@ -202,6 +226,8 @@ int get_search_mode(char* nomeCampo);
  */
 int parameter_search(dataReg* data, int modoBusca, char* valorBuscado);
 
+int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, int numPares, argsBusca* args, int mode);
+
 void parameter_delete(dataReg* data, int modoBusca, char* valorBuscado);
 
 /**
@@ -215,5 +241,20 @@ void parameter_delete(dataReg* data, int modoBusca, char* valorBuscado);
  * @retval 1 Valor encontrado.
  * 
  */
+
+ int read_func_init(char* arquivo, FILE** f, const headerReg* header);
+
+ void free_data_reg(dataReg* data);
+
+ void consume_trash(FILE* arquivoEntrada, int amount);
+
+ int qsort_aux_cmp(const void* a, const void* b);
+
+ void index_write(indexReg* index, dataReg* data, FILE* fIndice, int bOffset);
+
+ void delete_reg(dataReg* data, headerReg* header, FILE* fEntrada, long long int original_bOffset);
+
+ int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* data, headerReg* header, int numPares, argsBusca* args, int mode); 
+
 
 #endif
