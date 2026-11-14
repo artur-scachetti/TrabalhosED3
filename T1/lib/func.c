@@ -6,6 +6,7 @@ void func1(char* arquivoEntrada, char* arquivoSaida)
 {
     FILE* fEntrada = NULL;
     FILE* fSaida = NULL;
+    
     if ((fEntrada = fopen(arquivoEntrada, "r")) != NULL && (fSaida = fopen(arquivoSaida, "wb")) != NULL) 
     {
         char buffer[2000];
