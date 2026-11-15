@@ -93,7 +93,7 @@ typedef struct
 typedef struct 
 {
     char nomesCampo[100]; /**< Nome do parâmetro do qual se quer fazer a busca */
-    char valoresCampo[100]; /**< O valor procurado no parâmetro especificado */
+    char* valoresCampo; /**< O valor procurado no parâmetro especificado */
 
 } argsBusca;
 
@@ -226,7 +226,7 @@ int get_search_mode(char* nomeCampo);
  */
 int parameter_search(dataReg* data, int modoBusca, char* valorBuscado);
 
-int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, int numPares, argsBusca* args, int mode);
+int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, int numPares, int numAtt, argsBusca* args, argsBusca* argsAtt, int mode);
 
 void parameter_delete(dataReg* data, int modoBusca, char* valorBuscado);
 
@@ -242,7 +242,9 @@ void parameter_delete(dataReg* data, int modoBusca, char* valorBuscado);
  * 
  */
 
- int read_func_init(char* arquivo, FILE** f, const headerReg* header);
+ int read_func_init(char* arquivo, FILE** f, headerReg* header);
+
+int validate_all_parameters(dataReg* data, int numPares, argsBusca* args);
 
  void free_data_reg(dataReg* data);
 
@@ -254,7 +256,14 @@ void parameter_delete(dataReg* data, int modoBusca, char* valorBuscado);
 
  void delete_reg(dataReg* data, headerReg* header, FILE* fEntrada, long long int original_bOffset);
 
- int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* data, headerReg* header, int numPares, argsBusca* args, int mode); 
+ int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* data, headerReg* header, int numPares, int numAtt, argsBusca* args, argsBusca* argsAtt, int mode); 
 
+argsBusca* determinaArgsBusca(int numPares);
+
+void readSingleInput(dataReg* data, int modo);
+
+void readDataInput(dataReg* data);
+
+void writeDataWorst(dataReg* data, headerReg* header, FILE* arquivoSaida);
 
 #endif

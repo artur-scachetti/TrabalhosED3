@@ -1,5 +1,18 @@
-all:
-	gcc main.c lib/fornecidas.c lib/func.c lib/tools.c -I include -o programa
+CC = gcc
+CFLAGS = -Wall -Wextra -Iinclude
 
-run:
-	./programa
+SRC = main.c \
+      lib/fornecidas.c \
+      $(wildcard lib/funcs/*.c) \
+      $(wildcard lib/tools/*.c)
+
+TARGET = programa
+
+all:
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+
+run: all
+	./$(TARGET)
+
+clean:
+	rm -f $(TARGET)

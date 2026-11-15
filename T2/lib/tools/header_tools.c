@@ -3,34 +3,26 @@
 headerReg header_init()
 {
     headerReg header;
-
-    header.status = '0';    
+    header.status = '0';
     header.topoPilha = -1;
     header.proxOff = 0;
     header.nroRegRem = 0;
     header.nroPoPs = 0;
-
     return header;
 }
 
-int read_func_init(char* arquivo, FILE** f, const headerReg* header) {
+int read_func_init(char* arquivo, FILE** f, headerReg* header)
+{
+    *f = fopen(arquivo, "rb");
+    if (*f == NULL)
+        return 0;
 
-    int status_ok = 1;
-
-    // Verifica se o arquivo de entrada existe
-    if((f = fopen(arquivo, "rb")) == NULL) {
-
-        status_ok = 0;
-        return status_ok;
+    if (!header_read(header, *f)) {
+        fclose(*f);
+        *f = NULL;
+        return 0;
     }
-
-    // Verifica se o cabeçalho está consistente
-    if(header_read(&header, f) == 0) {
-
-        fclose(f);
-        status_ok = 0;
-        return status_ok;
-    }
+    return 1;
 }
 
 void header_write(const headerReg* header, FILE* arquivoSaida)
@@ -44,15 +36,11 @@ void header_write(const headerReg* header, FILE* arquivoSaida)
 
 int header_read(headerReg* header, FILE* arquivoEntrada)
 {
-    fread(&header->status, sizeof(char), 1, arquivoEntrada);
-    fread(&header->topoPilha, sizeof(long long int), 1, arquivoEntrada);
-    fread(&header->proxOff, sizeof(long long int), 1, arquivoEntrada);
-    fread(&header->nroRegRem, sizeof(int), 1, arquivoEntrada);
-    fread(&header->nroPoPs, sizeof(int), 1, arquivoEntrada);
-
-    if(&header->status == '0')
+    if (fread(&header->status, sizeof(char), 1, arquivoEntrada) != 1 ||
+        fread(&header->topoPilha, sizeof(long long int), 1, arquivoEntrada) != 1 ||
+        fread(&header->proxOff, sizeof(long long int), 1, arquivoEntrada) != 1 ||
+        fread(&header->nroRegRem, sizeof(int), 1, arquivoEntrada) != 1 ||
+        fread(&header->nroPoPs, sizeof(int), 1, arquivoEntrada) != 1)
         return 0;
-
-    else
-        return 1;
+    return header->status == '1';
 }
