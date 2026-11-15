@@ -9,104 +9,118 @@ int main()
     scanf("%d", &cmd);
     switch(cmd)
     {
-        case(1):
+        case(8):
         {
-            char arquivoEntradaCSV[100];
-            char arquivoSaidaBin[100];
+            char arquivoEntrada[100];
+            char arquivoSaida[100];
 
-            scanf("%s %s", arquivoEntradaCSV, arquivoSaidaBin);
+            scanf("%s %s", arquivoEntrada, arquivoSaida);
 
-            func1(arquivoEntradaCSV, arquivoSaidaBin);
+            func8(arquivoEntrada, arquivoSaida);
 
             break;
         }
-        case(2):
+        case(9):
         {
-            char arquivoEntradaBin[100];
+            char arquivoEntrada[100];
+            char arquivoIndice[100];
 
-            scanf("%s", arquivoEntradaBin);
+            scanf("%s %s", arquivoEntrada, arquivoIndice);
 
-            func2(arquivoEntradaBin);
+            func9(arquivoEntrada, arquivoIndice, 1);
 
             break;
         }
-        case(3):
+        case(10):
         {
-            char arquivoEntradaBin[100];
+            char arquivoEntrada[100];
+
+            scanf("%s", arquivoEntrada);
+
+            func10(arquivoEntrada);
+            
+            break;
+        }
+        case(11):
+        {
+            char arquivoEntrada[100];
+            char arquivoIndices[100];
             int numConjuntos = 0;
 
-            // A variável "numConjuntos" indica quantas buscas com critério devem ser executadas
-            scanf("%s %d", arquivoEntradaBin, &numConjuntos);
+            scanf("%s %s %d", arquivoEntrada, arquivoIndices, &numConjuntos);
 
-            // Para isso, deve-se realizar a obtenção de parâmetros conforme indicado por "numConjuntos",
-            // levando em conta que não se sabe quantos pares parâmetro-valor o programa está esperando.
             for(int i = 0; i < numConjuntos; i++)
             {
-                // Assim, para cada conjunto, primeiro obtém-se o número de pares esperados, para que
-                // então a variável do tipo "argsBusca" seja criada do tamanho apropriado
                 int numPares;
                 scanf("%d", &numPares);
 
-                argsBusca args[numPares];
-                
-                for(int j = 0; j < numPares; j++)
-                {
-                    // Percorre-se todos os pares, armazenando tanto o nome do parâmetro buscado, quanto
-                    // o valor nele buscado.
-                    scanf("%s", args[j].nomesCampo);
+                argsBusca* args = determinaArgsBusca(numPares);
 
-                    if(strcmp(args[j].nomesCampo, "unidadeMedida") == 0){
+                func11(arquivoEntrada, arquivoIndices, numPares, args);
 
-                        ScanQuoteString(args[j].valoresCampo);
-                    }
-                    else scanf("%s", args[j].valoresCampo);
-
-                }
-
-                func3(arquivoEntradaBin, numPares, args);
+                if(i < numConjuntos)
+                    printf("\n");
             }
-        
             break;
         }
-        case(4):
-        {
-            char arquivoEntradaBin[100];
-            int RRN = 0;
-
-            scanf("%s %d", arquivoEntradaBin, &RRN);
-            func4(arquivoEntradaBin, RRN);
-
-            break;
-        }
-        case(5):
-        {
-            char arquivoEntradaBin[100];
-            int numRem = 0;
-
-            scanf("%s %d", arquivoEntradaBin, &numRem);
-
-            func5(arquivoEntradaBin, numRem);
-            break;
-        }
-        case(6):
+        case(12):
         {
             char arquivoEntrada[100];
-            int numEntradas = 0;
+            char arquivoIndices[100];
+            int numConjuntos = 0;
 
-            scanf("%s %d", arquivoEntrada, &numEntradas);
+            scanf("%s %s %d", arquivoEntrada, arquivoIndices, &numConjuntos);
 
-            func6(arquivoEntrada, numEntradas);
+            for(int i = 0; i < numConjuntos; i++)
+            {
+                int numPares;
+                scanf("%d", &numPares);
+
+                argsBusca* args = determinaArgsBusca(numPares);
+
+                func12(arquivoEntrada, arquivoIndices, numPares, args);
+            }
+
+            BinarioNaTela(arquivoEntrada);
+            BinarioNaTela(arquivoIndices);
             break;
         }
-        case(7):
+        case(13):
         {
             char arquivoEntrada[100];
+            char arquivoIndices[100];
+            int numRegistros = 0;
+
+            scanf("%s %s %d", arquivoEntrada, arquivoIndices, &numRegistros);
+
+            func13(arquivoEntrada, arquivoIndices, numRegistros);
+
+            break;
+        }
+        case(14):
+        {
+            char arquivoEntrada[100];
+            char arquivoIndices[100];
             int numAtt = 0;
 
-            scanf("%s %d", arquivoEntrada, &numAtt);
+            scanf("%s %s %d", arquivoEntrada, arquivoIndices, &numAtt);
 
-            func7(arquivoEntrada, numAtt);
-            break;
-        }      
+            for(int i = 0; i < numAtt; i++)
+            {
+                int numParesBusca;
+                int numParesAtt;
+                scanf("%d", &numParesBusca);
+
+                argsBusca* args = determinaArgsBusca(numParesBusca);
+
+                scanf("%d", &numParesAtt);
+
+                argsBusca* argsAtt = determinaArgsBusca(numParesAtt);
+
+                func14(arquivoEntrada, arquivoIndices, args, argsAtt, numParesBusca, numParesAtt);
+            }
+            BinarioNaTela(arquivoEntrada);
+            BinarioNaTela(arquivoIndices);
+        }
     }
 }

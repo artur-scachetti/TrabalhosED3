@@ -1,28 +1,5 @@
 #include "../../include/tools.h"
 
-/** Refere-se ao número de bytes presentes em um registro de header
- *  idPoPs + byteOffset
- *    4    +     8      =  12
- */
-#define BYTES_PER_IDX_REG       12
-
-/**
- * @brief Estrutura que define os campos de um registro de cabeçalho do arquivo de índice primário
- */
-typedef struct
-{
-    char status; /**< Indica se o registro está removido ('1') ou não ('0')  */
-} indexHeader;
-
-/**
- * @brief Estrutura que define os campos de um registro de dados do arquivo de índice primário
- */
-typedef struct
-{
-    int idPops; /**< ID do PoPs */
-    long long int byteOffset; /**< byteoffset do registro */
-} indexReg;
-
 int qsort_aux_cmp(const void* a, const void* b) {
     const indexReg* idxA = (const indexReg*)a;
     const indexReg* idxB = (const indexReg*)b;
@@ -37,8 +14,8 @@ void index_write(indexReg* index, dataReg* data, FILE* fIndice, int bOffset) {
     index->idPops = data->idPoPs;
     index->byteOffset = (long long int) bOffset;
 
-    fwrite(index->idPops, sizeof(int), 1, fIndice);
-    fwrite(index->byteOffset, sizeof(long long int), 1, fIndice);
+    fwrite(&index->idPops, sizeof(int), 1, fIndice);
+    fwrite(&index->byteOffset, sizeof(long long int), 1, fIndice);
     
 }
 
@@ -53,7 +30,7 @@ int bsearch_aux_cmp(const void* target, const void* element) {
     return 0;
 }
 
-int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* data, headerReg* header, int numPares, argsBusca* args, int mode) 
+int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* data, headerReg* header, int numPares, int numAtt, argsBusca* args, argsBusca* argsAtt, int mode) 
 {
     FILE* fIndice = fopen(arquivoIndices, "rb");
 
@@ -71,6 +48,11 @@ int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* d
     int numRegs = header->nroPoPs;
     indexReg* idxVect = (indexReg*) malloc(numRegs * sizeof(indexReg));
     
+    if (idxVect == NULL) {
+        fclose(fIndice);
+        return 0;
+    }
+
     for (int i = 0; i < numRegs; i++) {
         fread(&idxVect[i].idPops, sizeof(int), 1, fIndice);
         fread(&idxVect[i].byteOffset, sizeof(long long int), 1, fIndice);
@@ -81,11 +63,16 @@ int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* d
 
     int found_field = 0;
 
-    if (result == NULL)
+    if (result == NULL) {
+        free(idxVect);
         return 0;
+    }
 
     fseek(fEntrada, result->byteOffset, SEEK_SET);
-    data_read(data, fEntrada);
+    if (!data_read(data, fEntrada)) {
+        free(idxVect);
+        return 0;
+    }
 
     if (data->removido == '0') {
         
@@ -96,6 +83,39 @@ int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* d
 
             if (mode == DELETE_MODE)
                 delete_reg(data, header, fEntrada, result->byteOffset);
+            if (mode == UPDATE_MODE)
+            {
+                int tamanhoOriginal = data->tamanhoRegistro;
+                long long int offsetOriginal = result->byteOffset;
+
+                for (int i = 0; i < numAtt; i++)
+                {
+                    data_Atualiza(data, argsAtt[i].nomesCampo, argsAtt[i].valoresCampo);
+                }
+
+                if (data->tamanhoRegistro <= tamanhoOriginal)
+                {
+                    data->tamanhoRegistro = tamanhoOriginal;
+                    data->removido = '0';
+                    data->encadeamentoLista = -1;
+
+                    fseek(fEntrada, offsetOriginal, SEEK_SET);
+                    data_write(data, fEntrada);
+                }
+                else
+                {
+                    int tamanhoNovo = data->tamanhoRegistro;
+                    data->tamanhoRegistro = tamanhoOriginal;
+
+                    delete_reg(data, header, fEntrada, offsetOriginal);
+
+                    data->tamanhoRegistro = tamanhoNovo;
+                    data->removido = '0';
+                    data->encadeamentoLista = -1;
+
+                    writeDataWorst(data, header, fEntrada);
+                }
+            }
 
             found_field = 1;
         }

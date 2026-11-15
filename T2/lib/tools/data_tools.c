@@ -1,5 +1,10 @@
 #include "../../include/tools.h"
 
+void contaTam(dataReg* data)
+{
+    data->tamanhoRegistro = 21 + (int)strlen(data->nomePops) + (int)strlen(data->nomePais);
+}
+
 void free_data_reg(dataReg* data) {
 
     if (data->nomePops != NULL) {
@@ -27,7 +32,7 @@ void consume_trash(FILE* arquivoEntrada, int amount) {
 void fill_trash(FILE* arquivoEntrada, size_t ammount) {
     char trash = '$';
 
-    for (int i = 0; i < ammount; i++) {
+    for (size_t i = 0; i < ammount; i++) {
 
         fwrite(&trash, sizeof(char), 1, arquivoEntrada);
     }
@@ -62,7 +67,7 @@ void data_write_rem(const dataReg* data, FILE* arquivoSaida)
 {
     fwrite(&data->removido, sizeof(char), 1, arquivoSaida);
     fwrite(&data->tamanhoRegistro, sizeof(int), 1, arquivoSaida);
-    fwrite(&data->encadeamentoLista, sizeof(int), 1, arquivoSaida);
+    fwrite(&data->encadeamentoLista, sizeof(long long int), 1, arquivoSaida);
 
     for(int i = 0; i < data->tamanhoRegistro - 13; i++)
         fwrite("$", sizeof(char), 1, arquivoSaida);
@@ -107,7 +112,7 @@ void read_all_var_fields(dataReg* data, FILE* arquivoEntrada, int alr_bytes_read
     read_single_var_field(arquivoEntrada, &data->nomePais, &bytes_readed);
 
     // consome o lixo restante
-    consume_trash(arquivoEntrada, data->tamanhoRegistro - alr_bytes_readed);
+    consume_trash(arquivoEntrada, data->tamanhoRegistro - bytes_readed);
 }
 
 int data_read(dataReg* data, FILE* arquivoEntrada)
@@ -125,7 +130,7 @@ int data_read(dataReg* data, FILE* arquivoEntrada)
 
     if(data->removido == '1'){
 
-        consume_trash(arquivoEntrada, data->tamanhoRegistro - 13);
+        consume_trash(arquivoEntrada, data->tamanhoRegistro - 19);
         return 1;
     }
     
@@ -142,9 +147,9 @@ dataReg data_Cria(char* idPoPs, char* siglaPais, char* nomePops, char* nomePais)
     data.idPoPs = atoi(idPoPs);
 
     if(strcmp(siglaPais, "NULO") == 0) 
-        strcpy(data.siglaPais, "$$");
+        memcpy(data.siglaPais, "$$", 2);
     else 
-        strcpy(data.siglaPais, siglaPais);
+        memcpy(data.siglaPais, siglaPais, 2);
 
     if(strcmp(nomePops, "NULO") == 0) {
 
@@ -183,12 +188,12 @@ void data_Atualiza(dataReg* data, char* nomeCampo, char* valorCampo)
     else if(strcmp(nomeCampo, "siglaPais") == 0)
     {
         if(strcmp(valorCampo, "NULO") == 0)
-            strcpy(data->siglaPais, "$$");
+            memcpy(data->siglaPais, "$$", 2);
         else
-            strcpy(data->siglaPais, valorCampo);
+            memcpy(data->siglaPais, valorCampo, 2);
     }
 
-    else if(strcmp(nomeCampo, "nomePops") == 0)
+    else if(strcmp(nomeCampo, "nomePoPs") == 0)
     {
         free(data->nomePops);
 
@@ -232,70 +237,61 @@ void read_reg_csv(char* buffer, dataReg* data)
     data->removido = '0';
     data->encadeamentoLista = -1;
 
-    for(int campo_atual = 0; campo_atual < 4; campo_atual++)
+    for(int campo_atual = 0; campo_atual < 5; campo_atual++)
     {
         cursor = strchr(inicioCampo, ',');
 
         if(cursor != NULL)
         {
             *cursor = '\0';
-            cursor++;
         }
 
-        if(inicioCampo != NULL)
-            inicioCampo[strcspn(inicioCampo, "\r\n")] = '\0';
+        inicioCampo[strcspn(inicioCampo, "\r\n")] = '\0';
 
-        int campo_vazio = (inicioCampo == NULL || inicioCampo[0] == '\0');
+        int campo_vazio = (inicioCampo[0] == '\0');
 
         switch(campo_atual)
         {
             case 0:
+                break;
+
+            case 1:
                 if(!campo_vazio)
                     data->idPoPs = atoi(inicioCampo);
                 else
                     data->idPoPs = -1;
                 break;
 
-            case 1:
-                if(!campo_vazio)
-                {
-                    strncpy(data->siglaPais, inicioCampo, 2);
-                    data->siglaPais[2] = '\0';
-                }
-                else
-                    strcpy(data->siglaPais, "$$");
-                break;
-
             case 2:
-                if(!campo_vazio) {
+                data->nomePops = malloc(strlen(inicioCampo) + 1);
 
-                    data->nomePops = (char*) malloc((strlen(inicioCampo) + 1) * sizeof(char));
-                    strcpy(data->nomePops, inicioCampo);
-                } 
-                
-                else {
+                if(data->nomePops == NULL)
+                    exit(EXIT_FAILURE);
 
-                    data->nomePops = (char*) malloc(1 * sizeof(char));
-                    data->nomePops[0] = '\0';
-                }
+                strcpy(data->nomePops, inicioCampo);
                 break;
 
             case 3:
-                if(!campo_vazio) {
+                data->nomePais = malloc(strlen(inicioCampo) + 1);
 
-                    data->nomePais = (char*) malloc((strlen(inicioCampo) + 1) * sizeof(char));
-                    strcpy(data->nomePais, inicioCampo);
-                } 
+                if(data->nomePais == NULL)
+                    exit(EXIT_FAILURE);
 
-                else {
+                strcpy(data->nomePais, inicioCampo);
+                break;
 
-                    data->nomePais = (char*) malloc(1 * sizeof(char));
-                    data->nomePais[0] = '\0';
-                }
+            case 4:
+                if(!campo_vazio)
+                    memcpy(data->siglaPais, inicioCampo, 2);
+                else
+                    memcpy(data->siglaPais, "$$", 2);
                 break;
         }
 
-        inicioCampo = cursor;
+        if(cursor == NULL)
+            break;
+
+        inicioCampo = cursor + 1;
     }
 
     contaTam(data);
@@ -336,12 +332,12 @@ void delete_reg(dataReg* data, headerReg* header, FILE* fEntrada, long long int 
 
     data->removido = '1';
 
-    long long int prev_bOffset = 0;
+    long long int prev_bOffset = -1;
     long long int current_bOffset = header->topoPilha;
 
     dataReg rem_data;
 
-    while(current_bOffset != EOF) {
+    while(current_bOffset != -1) {
 
         fseek(fEntrada, current_bOffset, SEEK_SET);
         data_read(&rem_data, fEntrada);
@@ -354,7 +350,7 @@ void delete_reg(dataReg* data, headerReg* header, FILE* fEntrada, long long int 
 
         prev_bOffset = current_bOffset;
         current_bOffset = rem_data.encadeamentoLista;
-        free(&rem_data);
+        free_data_reg(&rem_data);
 
     }
 
@@ -379,6 +375,7 @@ void delete_reg(dataReg* data, headerReg* header, FILE* fEntrada, long long int 
     }
 
     header->nroRegRem++;
+    header->nroPoPs--;
 
     return;
 
@@ -387,7 +384,7 @@ void delete_reg(dataReg* data, headerReg* header, FILE* fEntrada, long long int 
 int get_search_mode(char* nomeCampo) 
 {   
     if (strcmp(nomeCampo, "siglaPais") == 0) return 1;
-    if (strcmp(nomeCampo, "nomePops") == 0) return 2;
+    if (strcmp(nomeCampo, "nomePoPs") == 0) return 2;
     if (strcmp(nomeCampo, "nomePais") == 0) return 3;
 
     if (strcmp(nomeCampo, "idPoPs") == 0) return 13;
@@ -447,7 +444,7 @@ int validate_all_parameters(dataReg* data, int numPares, argsBusca* args)
     return 1; 
 }
 
-int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, int numPares, argsBusca* args, int mode) {
+int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, int numPares, int numAtt, argsBusca* args, argsBusca* argsAtt, int mode) {
     int found_field = 0;
 
     // loop externo que lê sequencialmente todos os registros
@@ -455,7 +452,6 @@ int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, 
 
         long long int original_bOffset = ftell(fEntrada) - data->tamanhoRegistro;
         
-        int sucess = 1;
         
         if (data->removido == '1') {
             free_data_reg(data);
@@ -479,10 +475,219 @@ int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, 
 
                 found_field = 1;
             }
+
+            if (mode == UPDATE_MODE)
+            {
+                long long int proximoOffset = ftell(fEntrada);
+                int tamOriginal = data->tamanhoRegistro;
+                for(int i = 0; i < numAtt; i++)
+                {
+                    data_Atualiza(data, argsAtt[i].nomesCampo, argsAtt[i].valoresCampo);
+                }
+                if(data->tamanhoRegistro <= tamOriginal)
+                {
+                    data->tamanhoRegistro = tamOriginal;
+                    data->removido = '0';
+                    data->encadeamentoLista = -1;
+
+                    fseek(fEntrada, original_bOffset, SEEK_SET);
+                    data_write(data, fEntrada);
+                }
+                else
+                {
+                    int tamanhoNovo = data->tamanhoRegistro;
+                    data->tamanhoRegistro = tamOriginal;
+
+                    delete_reg(data, header, fEntrada, original_bOffset);
+
+                    data->tamanhoRegistro = tamanhoNovo;
+                    data->removido = '0';
+                    data->encadeamentoLista = -1;
+
+                    writeDataWorst(data, header, fEntrada);
+                }
+                found_field = 1;
+                fseek(fEntrada, proximoOffset, SEEK_SET);
+            }
         }
 
         free_data_reg(data);
     }
 
     return found_field;
+}
+
+argsBusca* determinaArgsBusca(int numPares)
+{
+    argsBusca* args = (argsBusca*)malloc(numPares*sizeof(argsBusca));
+
+    if(args == NULL)
+        return NULL;
+
+    for(int i = 0; i < numPares; i++)
+    {
+        scanf("%s", args[i].nomesCampo);
+        if(strcmp(args[i].nomesCampo, "idPoPs") == 0)
+            scanf("%ms", &args[i].valoresCampo);
+        else
+        {
+            char* aux = NULL;
+            size_t capacidade = 4;
+            size_t tamanho = 0;
+            int c;
+
+            while((c = getchar()) != EOF &&
+                (c == ' ' || c == '\n'));
+
+            if(c == '"')
+            {
+                aux = malloc(capacidade);
+                while((c = getchar()) != '"' && c != EOF)
+                {
+                    if(tamanho + 1 >= capacidade)
+                    {
+                        capacidade *= 2;
+                        aux = realloc(aux, capacidade);
+                    }
+                    aux[tamanho++] = (char)c;
+                }
+
+                if(c == EOF)
+                {
+                    free(aux);
+                    return NULL;
+                }
+                aux[tamanho] = '\0';
+                args[i].valoresCampo = aux;
+            }
+            else
+            {
+                args[i].valoresCampo = malloc(5);
+                strcpy(args[i].valoresCampo, "NULO");
+                for(int j = 0; j < 3; j++)
+                    c = getchar();
+            }
+        }
+    }
+    return args;
+}
+
+void readSingleInput(dataReg* data, int modo)
+{
+    char* aux = NULL;
+    size_t capacidade = 4;
+    size_t tamanho = 0;
+    int c;
+
+    while((c = getchar()) != EOF &&
+                (c == ' ' || c == '\n'));
+
+    if(c == '"')
+    {
+        aux = malloc(capacidade);
+                while((c = getchar()) != '"' && c != EOF)
+                {
+                    if(tamanho + 1 >= capacidade)
+                    {
+                        capacidade *= 2;
+                        aux = realloc(aux, capacidade);
+                    }
+                    aux[tamanho++] = (char)c;
+                }
+
+                if(c == EOF)
+                {
+                    free(aux);
+                    return;
+                }
+                aux[tamanho] = '\0';
+    }
+    else
+    {
+        aux = malloc(5);
+        for(int j = 0; j < 3; j++)
+            c = getchar();
+        strcpy(aux, "NULO");
+    }
+    if(modo == 1)
+    {
+        if(strcmp(aux, "NULO") == 0)
+            aux[0] = '\0';
+
+        data->nomePops = aux;
+    }
+    else if(modo == 2)
+    {
+        if(strcmp(aux, "NULO") == 0)
+            aux[0] = '\0';
+
+        data->nomePais = aux;
+    }
+    if(modo == 3)
+    {
+        if(strcmp(aux, "NULO") == 0)
+            memcpy(data->siglaPais, "$$", 2);
+        else
+            memcpy(data->siglaPais, aux, 2);
+
+        free(aux);
+    }
+    data->removido = '0';
+    data->encadeamentoLista = -1;
+}
+
+void readDataInput(dataReg* data)
+{
+    int idPoPs = 0;
+    scanf("%d", &idPoPs);
+    data->idPoPs = idPoPs;
+
+    readSingleInput(data, 1); //nome PoPs
+    readSingleInput(data, 2); //nome Pais
+    readSingleInput(data, 3); //Sigla
+    contaTam(data);
+}
+
+void writeDataWorst(dataReg* data, headerReg* header, FILE* fSaida)
+{
+    fseek(fSaida, 0, SEEK_SET);
+
+    int reutilizou = 0;
+
+    if(header->nroRegRem > 0 && header->topoPilha != -1)
+    {
+        long long int offsetMaior = header->topoPilha;
+        dataReg dataAux;
+
+        fseek(fSaida, offsetMaior, SEEK_SET);
+
+        if(!data_read(&dataAux, fSaida))
+            return;
+
+        if(dataAux.removido == '1' &&
+           dataAux.tamanhoRegistro >= data->tamanhoRegistro)
+        {
+            header->topoPilha = dataAux.encadeamentoLista;
+            header->nroRegRem--;
+
+            data->tamanhoRegistro = dataAux.tamanhoRegistro;
+            data->removido = '0';
+            data->encadeamentoLista = -1;
+
+            fseek(fSaida, offsetMaior, SEEK_SET);
+            data_write(data, fSaida);
+
+            reutilizou = 1;
+        }
+
+        free_data_reg(&dataAux);
+    }
+
+    if(!reutilizou)
+    {
+        fseek(fSaida, 0, SEEK_END);
+        data_write(data, fSaida);
+        header->proxOff = ftell(fSaida);
+    }
+    header->nroPoPs++;
 }

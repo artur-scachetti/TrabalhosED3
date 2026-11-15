@@ -119,3 +119,17 @@ void func6(char* arquivoEntrada, int numEntradas);
  */
 void func7(char* arquivoEntrada, int numAtt);
 #endif
+
+void func8(char* arquivoEntrada, char* arquivoSaida);
+
+void func9(char* arquivoEntrada, char* arquivoIndice, int p);
+
+void func10(char* arquivoEntrada);
+
+void func11(char* arquivoEntrada, char* arquivoIndice, int numPares, argsBusca* args);
+
+void func12(char* arquivoEntrada, char* arquivoIndices, int numPares, argsBusca* args);
+
+void func13(char* arquivoEntrada, char* arquivoIndice, int numRegistros);
+
+void func14(char* arquivoEntrada, char* arquivoIndices, argsBusca* args, argsBusca* dataAtt, int numParesBusca, int numParesAtt);

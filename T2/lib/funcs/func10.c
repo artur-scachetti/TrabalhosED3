@@ -8,7 +8,7 @@ void func10(char* arquivoEntrada) {
     headerReg header;
     int registro_existente = 0;
 
-    if(!read_func_init(arquivoEntrada, fEntrada, &header)) {
+    if(!read_func_init(arquivoEntrada, &fEntrada, &header)) {
 
         printf("Falha no processamento do arquivo.\n");
         return;
@@ -24,6 +24,7 @@ void func10(char* arquivoEntrada) {
         if(print_reg(&data))
             registro_existente = 1;
 
+        free_data_reg(&data);
     }
 
     if(registro_existente == 0) 
