@@ -8,6 +8,8 @@ void func10(char* arquivoEntrada) {
     headerReg header;
     int registro_existente = 0;
 
+
+    // Verifica a inicialização correta dos arquivos utilizados e do registro de cabeçalho
     if(!read_func_init(arquivoEntrada, &fEntrada, &header)) {
 
         printf("Falha no processamento do arquivo.\n");
@@ -24,6 +26,7 @@ void func10(char* arquivoEntrada) {
         if(print_reg(&data))
             registro_existente = 1;
 
+        // Libera a memória da estrutura de dados utilizada
         free_data_reg(&data);
     }
 

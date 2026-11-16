@@ -380,6 +380,7 @@ int get_search_mode(char* nomeCampo)
     return 0;
 }
 
+// Função usada para verificar UM par de Campo/Valor buscado
 int parameter_search(dataReg* data, int search_mode, char* valorBuscado) 
 {
     if(search_mode == 0)
@@ -387,6 +388,8 @@ int parameter_search(dataReg* data, int search_mode, char* valorBuscado)
 
     int null = (strcmp(valorBuscado, "NULO") == 0);
 
+    // Confere, baseado em qual modo de pesquisa (campo procurado), se o valor
+    // buscado corresponde ao que foi lido e armazenado no registro de dados.
     switch (search_mode) 
     {
         case NOME_POPS: 
@@ -418,8 +421,12 @@ int parameter_search(dataReg* data, int search_mode, char* valorBuscado)
     }
 }
 
+// Função usada para verificar iteradamente a correspondência de TODOS os pares Campo/Valor 
+// referentes a UM registro do arquivo.
 int validate_all_parameters(dataReg* data, int numPares, argsBusca* args) 
 {
+    // Percorre TODOS os PARES de Campo Buscado / Valor Buscado, retornando 1
+    // apenas se TODOS os pares forem correspondidos SIMULTANEAMENTE.
     for (int i = 0; i < numPares; i++) {
 
         int search_mode = get_search_mode(args[i].nomesCampo);
@@ -462,12 +469,17 @@ void atualizarRegistro(dataReg* data, headerReg* header, FILE* fEntrada, long lo
     }
 }
 
+// Função usada para verificar iteradamente a correspondência de TODOS os pares Campo/Valor 
+// referentes a TODOS os registros do arquivo.
+
+// Além disso, executa diferentes ações com base na função que a chama (argumento "mode")
 int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, int numPares, int numAtt, argsBusca* args, argsBusca* argsAtt, int mode) {
     int found_field = 0;
 
     // loop externo que lê sequencialmente todos os registros
     while (data_read(data, fEntrada) != 0) {
 
+        // guarda o byte do início do registro
         long long int original_bOffset = ftell(fEntrada) - data->tamanhoRegistro;
         
         
@@ -477,6 +489,7 @@ int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, 
         }
 
         // loop interno de verificação de todos os pares de parâmetros de busca
+        // referentes a apenas um registro
         if (validate_all_parameters(data, numPares, args)) {
             
             if (mode == PRINT_MODE) {
@@ -489,6 +502,7 @@ int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, 
             if (mode == DELETE_MODE) {
 
                 delete_reg(data, header, fEntrada, original_bOffset);
+                // direciona para o início do próximo registro livre
                 fseek(fEntrada, original_bOffset + data->tamanhoRegistro, SEEK_SET);
 
                 found_field = 1;
