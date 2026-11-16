@@ -9,11 +9,8 @@ void func14(char* arquivoEntrada, char* arquivoIndices, argsBusca* args, argsBus
 
     FILE* fEntrada = fopen(arquivoEntrada, "r+b");
 
-    if(fEntrada == NULL || !header_read(&header, fEntrada))
+    if(!write_func_init(arquivoEntrada, &fEntrada, &header))
     {
-        if(fEntrada != NULL)
-            fclose(fEntrada);
-
         printf("Falha no processamento do arquivo.\n");
         return;
     }
@@ -22,31 +19,19 @@ void func14(char* arquivoEntrada, char* arquivoIndices, argsBusca* args, argsBus
     fseek(fEntrada, 0, SEEK_SET);
     header_write(&header, fEntrada);
 
-    int search_type = -1;
     int valorIdPoPs = -1;
-
-    for(int i = 0; i < numParesBusca; i++) {
-
-        if(strcmp(args[i].nomesCampo, "idPoPs") == 0) {
-
-            search_type = INDEX_SEARCH;
-            valorIdPoPs = atoi(args[i].valoresCampo);
-
-            break;
-        }
-
-        else
-            search_type = PARAMETER_SEARCH;
-    }
+    int search_type = determinaTipoBusca(args, numParesBusca, &valorIdPoPs);
 
     if(search_type == INDEX_SEARCH) {
         // busca por index
-        index_search(valorIdPoPs, arquivoIndices, fEntrada, &data, &header, numParesBusca, numParesAtt, args, argsAtt, UPDATE_MODE);
+        if(!index_search(valorIdPoPs, arquivoIndices, fEntrada, &data, &header, numParesBusca, numParesAtt, args, argsAtt, UPDATE_MODE))
+            printf("Registro inexistente.\n");
     }
 
     if(search_type == PARAMETER_SEARCH) {
         // busca por parâmetro
-        complete_parameter_search(&data, &header, fEntrada, numParesBusca, numParesAtt, args, argsAtt, UPDATE_MODE); 
+        if(!complete_parameter_search(&data, &header, fEntrada, numParesBusca, numParesAtt, args, argsAtt, UPDATE_MODE))
+            printf("Registro inexistente.\n");
     }
 
     fseek(fEntrada, 0, SEEK_SET);
@@ -55,7 +40,7 @@ void func14(char* arquivoEntrada, char* arquivoIndices, argsBusca* args, argsBus
 
     fclose(fEntrada);
 
-    func9(arquivoEntrada, arquivoIndices, 0);
+    func9(arquivoEntrada, arquivoIndices, APENAS_CRIA);
     
     return;
 }

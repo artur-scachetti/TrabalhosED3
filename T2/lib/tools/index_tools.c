@@ -85,36 +85,7 @@ int index_search(int target_id, char* arquivoIndices, FILE* fEntrada, dataReg* d
                 delete_reg(data, header, fEntrada, result->byteOffset);
             if (mode == UPDATE_MODE)
             {
-                int tamanhoOriginal = data->tamanhoRegistro;
-                long long int offsetOriginal = result->byteOffset;
-
-                for (int i = 0; i < numAtt; i++)
-                {
-                    data_Atualiza(data, argsAtt[i].nomesCampo, argsAtt[i].valoresCampo);
-                }
-
-                if (data->tamanhoRegistro <= tamanhoOriginal)
-                {
-                    data->tamanhoRegistro = tamanhoOriginal;
-                    data->removido = '0';
-                    data->encadeamentoLista = -1;
-
-                    fseek(fEntrada, offsetOriginal, SEEK_SET);
-                    data_write(data, fEntrada);
-                }
-                else
-                {
-                    int tamanhoNovo = data->tamanhoRegistro;
-                    data->tamanhoRegistro = tamanhoOriginal;
-
-                    delete_reg(data, header, fEntrada, offsetOriginal);
-
-                    data->tamanhoRegistro = tamanhoNovo;
-                    data->removido = '0';
-                    data->encadeamentoLista = -1;
-
-                    writeDataWorst(data, header, fEntrada);
-                }
+                atualizarRegistro(data, header, fEntrada, result->byteOffset, numAtt, argsAtt);
             }
 
             found_field = 1;

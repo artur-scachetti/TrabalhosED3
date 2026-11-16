@@ -25,6 +25,23 @@ int read_func_init(char* arquivo, FILE** f, headerReg* header)
     return 1;
 }
 
+int write_func_init(char* arquivo, FILE** f, headerReg* header)
+{
+    *f = fopen(arquivo, "r+b");
+
+    if(*f == NULL)
+        return 0;
+
+    if(!header_read(header, *f))
+    {
+        fclose(*f);
+        *f = NULL;
+        return 0;
+    }
+
+    return 1;
+}
+
 void header_write(const headerReg* header, FILE* arquivoSaida)
 {
     fwrite(&header->status, sizeof(char), 1, arquivoSaida);

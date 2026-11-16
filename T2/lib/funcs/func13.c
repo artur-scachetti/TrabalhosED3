@@ -33,7 +33,7 @@ void func13(char* arquivoEntrada, char* arquivoIndice, int numRegistros)
 
     fclose(fEntrada);
 
-    func9(arquivoEntrada, arquivoIndice, 0);
+    func9(arquivoEntrada, arquivoIndice, APENAS_CRIA);
 
     BinarioNaTela(arquivoEntrada);
     BinarioNaTela(arquivoIndice);

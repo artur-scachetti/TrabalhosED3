@@ -16,120 +16,76 @@
 #include "tools.h"
 
 /**
- * @brief Cria um arquivo binário de dados a partir de um arquivo .csv.
+ * @brief Cria um arquivo de dados binário a partir de um arquivo csv.
  * 
- * Essa função inicializa um cabeçalho padrão, escreve ele em um arquivo binário recém criado, lê as 
- * informações dos registros de dados contidas em um arquivo .csv, extrai essas informações e escreve-as
- * no arquivo binário. No final, expõe o binário do arquivo de saída na tela.
- * 
- * @param[in] arquivoEntrada Trata-se do arquivo .csv que contém as informações a serem passadas para o
- *                           arquivo binário.
- * @param[out] arquivoSaida  Arquivo binário que receberá o cabeçalho padrão e os dados retirados do 
- *                           arquivo .csv.
+ * @param[in] arquivoEntrada Nome do arquivo csv que contém os registros a serem armazenados.
+ * @param[in] arquivoSaida Nome do arquivo de dados no qual os registros serão inseridos.
  * 
  */
-void func1(char* arquivoEntrada, char* arquivoSaida);
-
-/**
- * @brief Printa todos os registros de dados presentes no arquivo binário.
- * 
- * Essa função percorre o arquivo binário, ignora o registro de cabeçalho e então lê os registros
- * de dados, printando-os na formatação específica: 'idPoPs idPoPsConectado velocidade "unidadeMedida"'.
- * Existe o tratamento para valores nulos, sendo transpostos como "NULO", tanto para velocidade quanto
- * para unidade de medida.
- * 
- * @param[in] arquivoEntrada Arquivo binário do qual serão extraídas as informações dos registros.
- * 
- */
-void func2(char* arquivoEntrada);
-
-/**
- * @brief Printa registros que satisfazem crtérios de busca.
- * 
- * Essa função recebe da main.c os critérios (pares Parâmetro/Valor) de busca, percorre o arquivo
- * binário, comparando em cada registro as informações obtidas com os critérios de busca. A função
- * utiliza uma flag interna que printa os registros enquanto ela estiver ativa (enquanto todos os 
- * critério forem atendidos), mas que não o faz se ao menos um dos pares Parâmetro/Valor não for 
- * atendido (flag desativada).
- * 
- * @param[in] arquivoEntrada Arquivo binário do qual serão extraídas as informações dos registros.
- * @param[in] numPares       Indica quantos pares Parâmetro/Valor, ou seja, critérios estão sendo utilizados
- *                           na busca.
- * @param[in] args           Estrutura que carrega tanto os Parâmetros quanto os Valores nele buscados.
- *  
- */
-void func3(char* arquivoEntrada, int numPares, argsBusca* args);
-
-/**
- * @brief Printa um registro acessado diretamente.
- * 
- * Essa função acessa diretamente um registro por meio das informações de tamanho (bytes) de registro e 
- * do número de RRN. O bytte offset exato é encontrado por meio da fórmula matemática:
- * byte offset = tamanho do registro x RRN
- * 
- * @param[in] arquivoEntrada Arquivo binário que acessado e do qual serão retirados os dados do registro.
- * @param[in] RRN            Número do registro o qual se quer recuperar / printar.
- * 
- */
-void func4(char* arquivoEntrada, int RRN);
-
-/**
- * @brief Executa remoção lógica em arquivo binário.
- * 
- * Essa função recebe da main.c os critérios (pares Parâmetro/Valor) de busca, percorre o arquivo
- * binário, comparando em cada registro as informações obtidas com os critérios de busca. A função
- * utiliza uma flag interna que remove os registros enquanto ela estiver ativa (enquanto todos os 
- * critério forem atendidos), mas que não o faz se ao menos um dos pares Parâmetro/Valor não for 
- * atendido (flag desativada). Ao final, printa o valor do binário na tela.
- * 
- * @param[in] arquivoEntrada Arquivo binário do qual serão removidos os registros.
- * @param[in] numPares       Indica quantos pares Parâmetro/Valor, ou seja, critérios estão sendo utilizados
- *                           na busca.
- * @param[in] args           Estrutura que carrega tanto os Parâmetros quanto os Valores nele buscados.
- */
-void func5(char* arquivoEntrada, int numRem);
-
-/**
- * @brief Executa inserção em arquivo binário
- * 
- * Recebe da main.c o arquivo de entrada, na qual a inserção será realizada, tal qual o número n de registros a serem inseridos.
- * Para cada n, executa a leitura de 4 strings, cada qual correspondente a um campo do registro, e cria um campo data com essas 
- * informações. Para a inserção, verifica se existem registros removidos, caso não exista nenhum, insere no proxOff informado pelo 
- * cabeçalho do arquivo de entrada, atualizando o mesmo. Caso existam, insere no primeiro campo excluído informado, desempilhando
- * o mesmo.
- * 
- * @param[in] arquivoEntrada Arquivo binário no qual serão inseridos os registros.
- * @param[in] numEntradas    Indica quantas inserções serão realizadas.
- * 
- */
-void func6(char* arquivoEntrada, int numEntradas);
-
-/**
- * @brief Executa atualização em arquivo binário
- * 
- * Recebe da main.c o arquivo de entrada, na qual a inserção será realizada, tal qual o número n de registros a serem inseridos.
- * Para cada n, executa a leitura de 4 strings, cada qual correspondente a um campo do registro, e cria um campo data com essas 
- * informações. Para a inserção, verifica se existem registros removidos, caso não exista nenhum, insere no proxOff informado pelo 
- * cabeçalho do arquivo de entrada, atualizando o mesmo. Caso existam, insere no primeiro campo excluído informado, desempilhando
- * o mesmo.
- * 
- * @param[in] arquivoEntrada Arquivo binário no qual serão inseridos os registros.
- * @param[in] numAtt         Indica quantas inserções serão realizadas.
- * 
- */
-void func7(char* arquivoEntrada, int numAtt);
-#endif
-
 void func8(char* arquivoEntrada, char* arquivoSaida);
 
-void func9(char* arquivoEntrada, char* arquivoIndice, int p);
+/**
+ * @brief Cria um arquivo de índices a partir de um arquivo de dados.
+ * 
+ * @param[in] arquivoEntrada Nome do arquivo de dados.
+ * @param[in] arquivoIndice Nome do arquivo de índice.
+ * @param[in] func9Mode Determina se a chamada deverá ou não escrever o valor binário do arquivo de Índice.
+ * 
+ */
+void func9(char* arquivoEntrada, char* arquivoIndice, int func9Mode);
 
+/**
+ * @brief Printa todos os registros de um arquivo de dados que não estejam logicamente removidos.
+ * 
+ * @param[in] arquivoEntrada Nome do arquivo de dados.
+ * 
+ */
 void func10(char* arquivoEntrada);
 
+/**
+ * @brief Printa todos os registros de um arquivo de dados que atenda aos critérios de busca informados. 
+ *        Busca é realizada no arquivo de dados ou de índice, a depender dos critérios fornecidos.
+ * 
+ * @param[in] arquivoEntrada Nome do arquivo de dados.
+ * @param[in] arquivoIndice Nome do arquivo de índices.
+ * @param[in] numPares Número de pares tipo de dado e valor respectivo que deverão ser verificados em cada registro.
+ * @param[in] args Pares de tipos de dados e valores respectivos a serem buscados no arquivo.
+ * 
+ */
 void func11(char* arquivoEntrada, char* arquivoIndice, int numPares, argsBusca* args);
 
+/**
+ * @brief Executa a remoção lógica de registros que atendam aos critérios de busca especificados.
+ * 
+ * @param[in] arquivoEntrada Nome do arquivo de dados.
+ * @param[in] arquivoIndices Nome do arquivo de índices.
+ * @param[in] numPares Número de pares tipo de dado e valor respectivo que deverão ser verificados em cada registro.
+ * @param[in] args Pares de tipos de dados e valores respectivos a serem buscados no arquivo.
+ * 
+ */
 void func12(char* arquivoEntrada, char* arquivoIndices, int numPares, argsBusca* args);
 
+/**
+ * @brief Insere novos registros em um arquivo de dados, utilizando a abordagem WorstFit.
+ * 
+ * @param[in] arquivoEntrada Nome do arquivo de dados.
+ * @param[in] arquivoIndice Nome do arquivo de índices.
+ * @param[in] numRegistros Número de registros a serem inseridos.
+ * 
+ */
 void func13(char* arquivoEntrada, char* arquivoIndice, int numRegistros);
 
+/**
+ * @brief Atualiza registros que atendam aos critérios de busca especificados em um arquivo de dados.
+ * 
+ * @param[in] arquivoEntrada Nome do arquivo de dados.
+ * @param[in] arquivoIndices Nome do arquivo de índices.
+ * @param[in] args Pares de tipos de dados e valores respectivos a serem buscados no arquivo.
+ * @param[in] dataAtt Informações a serem inseridas nos registros de dados que atenderem aos critérios de busca, em caso de update.
+ * @param[in] numParesBusca Número de pares tipo de dado e valor respectivo que deverão ser verificados em cada registro.
+ * @param[in] numParesAtt Número de pares tipo de dado e valor respectivo que serão inseridos nos registros que atendem aos 
+ *                        critérios de busca.
+ */
 void func14(char* arquivoEntrada, char* arquivoIndices, argsBusca* args, argsBusca* dataAtt, int numParesBusca, int numParesAtt);
+
+#endif
