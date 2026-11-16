@@ -49,11 +49,13 @@ int main()
 
             scanf("%s %s %d", arquivoEntrada, arquivoIndices, &numConjuntos);
 
+            // Percorre o número dado de conjunto de pares Campo/Valor
             for(int i = 0; i < numConjuntos; i++)
             {
                 int numPares;
                 scanf("%d", &numPares);
 
+                // Extrai os Pares Campo/Valor para usar como argumentos de busca
                 argsBusca* args = determinaArgsBusca(numPares);
 
                 func11(arquivoEntrada, arquivoIndices, numPares, args);
@@ -73,11 +75,13 @@ int main()
 
             scanf("%s %s %d", arquivoEntrada, arquivoIndices, &numConjuntos);
 
+            // Percorre o número dado de conjunto de pares Campo/Valor
             for(int i = 0; i < numConjuntos; i++)
             {
                 int numPares;
                 scanf("%d", &numPares);
 
+                // Extrai os Pares Campo/Valor para usar como argumentos de busca
                 argsBusca* args = determinaArgsBusca(numPares);
 
                 func12(arquivoEntrada, arquivoIndices, numPares, args);
@@ -109,16 +113,19 @@ int main()
 
             scanf("%s %s %d", arquivoEntrada, arquivoIndices, &numAtt);
 
+            // Percorre os Pares de Campo/Valor a serem atualizados
             for(int i = 0; i < numAtt; i++)
             {
                 int numParesBusca;
                 int numParesAtt;
                 scanf("%d", &numParesBusca);
-
+                
+                // Extrai os Pares Campo/Valor para usar como argumentos de busca
                 argsBusca* args = determinaArgsBusca(numParesBusca);
 
                 scanf("%d", &numParesAtt);
 
+                // Extrai os Pares Campo/Valor para usar como argumentos de update
                 argsBusca* argsAtt = determinaArgsBusca(numParesAtt);
 
                 func14(arquivoEntrada, arquivoIndices, args, argsAtt, numParesBusca, numParesAtt);

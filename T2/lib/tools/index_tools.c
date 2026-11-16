@@ -1,5 +1,6 @@
 #include "../../include/tools.h"
 
+// função auxiliar para o uso do quick sort
 int qsort_aux_cmp(const void* a, const void* b) {
     const indexReg* idxA = (const indexReg*)a;
     const indexReg* idxB = (const indexReg*)b;
@@ -19,6 +20,7 @@ void index_write(indexReg* index, dataReg* data, FILE* fIndice, int bOffset) {
     
 }
 
+// função auxiliar para o uso da busca binária
 int bsearch_aux_cmp(const void* target, const void* element) {
 
     int target_id = *(const int*)target;
