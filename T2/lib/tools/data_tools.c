@@ -136,7 +136,6 @@ int data_read(dataReg* data, FILE* arquivoEntrada)
     return 1;
 }
 
-
 void atribuirNome(char** nome, char* valor)
 {
     if(strcmp(valor, "NULO") == 0)
@@ -150,7 +149,6 @@ void atribuirNome(char** nome, char* valor)
         strcpy(*nome, valor);
     }
 }
-
 
 void atribuirSigla(char* siglaPais, char* valor)
 {
@@ -509,46 +507,55 @@ int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, 
     return found_field;
 }
 
+// Lê uma string inserida por terminal
 char* readSingleData()
 {
+    // aux armazena a string lida
     char* aux = NULL;
     size_t capacidade = 4;
     size_t tamanho = 0;
     int c;
 
+    //Consome o espaço entre os dados
     while((c = getchar()) != EOF &&
           (c == ' ' || c == '\n'));
 
+    //Se chegar ao fim, não há dados inseridos no terminal
     if(c == EOF)
         return NULL;
 
+    //Leitura é realizada caracter até caracter, de uma " até a outra
     if(c == '"')
     {
         aux = malloc(capacidade);
 
         while((c = getchar()) != '"' && c != EOF)
         {
+            //Se for maior do que a capacidade já alocada, dobra a capacidade e realoca
             if(tamanho + 1 >= capacidade)
             {
                 capacidade *= 2;
                 aux = realloc(aux, capacidade);
             }
-
+            //Armazena o caractere lido
             aux[tamanho++] = (char)c;
         }
 
+        //Se não encontrou o outro ", a entrada é inválida e a memória e liberada
         if(c == EOF)
         {
             free(aux);
             return NULL;
         }
-
+        //Finaliza a string
         aux[tamanho] = '\0';
     }
     else
     {
+        //Se não for uma ", está escrito NULO
         aux = malloc(5);
 
+        //Consome o ULO
         for(int j = 0; j < 3; j++)
             c = getchar();
 
@@ -567,6 +574,7 @@ argsBusca* determinaArgsBusca(int numPares)
 
     for(int i = 0; i < numPares; i++)
     {
+        //Se não for idPoPs, é necessário um tratamento especial na leitura
         scanf("%s", args[i].nomesCampo);
         if(strcmp(args[i].nomesCampo, "idPoPs") == 0)
             scanf("%ms", &args[i].valoresCampo);
@@ -574,6 +582,7 @@ argsBusca* determinaArgsBusca(int numPares)
             args[i].valoresCampo = readSingleData();
         if(args[i].valoresCampo == NULL)
         {
+            //Se falhou na leitura, libera a memória ocupada até então.
             freeArgsBusca(args, i);
             return NULL;
         }
@@ -583,8 +592,10 @@ argsBusca* determinaArgsBusca(int numPares)
 
 void readSingleInput(dataReg* data, int modo)
 {
+    //Lê a string inserida no terminal
     char* aux = readSingleData();
 
+    //Em caso de falha, libera a memória alocada
     if(aux == NULL)
     {
         free(aux);
@@ -619,6 +630,7 @@ void readSingleInput(dataReg* data, int modo)
 
 void readDataInput(dataReg* data)
 {
+    //Leitura de registro de dados inserido pelo terminal
     int idPoPs = 0;
     scanf("%d", &idPoPs);
     data->idPoPs = idPoPs;
@@ -631,22 +643,24 @@ void readDataInput(dataReg* data)
 
 void writeDataWorst(dataReg* data, headerReg* header, FILE* fSaida)
 {
+    //Inserção por WorstFit
     fseek(fSaida, 0, SEEK_SET);
 
     int reutilizou = 0;
 
     if(header->nroRegRem > 0 && header->topoPilha != -1)
     {
+        //Implementação funciona se registros já ordenados na pilha
         long long int offsetMaior = header->topoPilha;
         dataReg dataAux;
 
         fseek(fSaida, offsetMaior, SEEK_SET);
 
+        //Se leitura falhar, retorna
         if(!data_read(&dataAux, fSaida))
             return;
 
-        if(dataAux.removido == '1' &&
-           dataAux.tamanhoRegistro >= data->tamanhoRegistro)
+        if(dataAux.removido == '1' && dataAux.tamanhoRegistro >= data->tamanhoRegistro)
         {
             header->topoPilha = dataAux.encadeamentoLista;
             header->nroRegRem--;
@@ -658,6 +672,7 @@ void writeDataWorst(dataReg* data, headerReg* header, FILE* fSaida)
             fseek(fSaida, offsetMaior, SEEK_SET);
             data_write(data, fSaida);
 
+            //Maior registro removido possuía espaço o suficiente
             reutilizou = 1;
         }
 
@@ -666,6 +681,7 @@ void writeDataWorst(dataReg* data, headerReg* header, FILE* fSaida)
 
     if(!reutilizou)
     {
+        //Se o maior registro removido não possui espaço o suficiente, insere no fim do arquivo
         fseek(fSaida, 0, SEEK_END);
         data_write(data, fSaida);
         header->proxOff = ftell(fSaida);
