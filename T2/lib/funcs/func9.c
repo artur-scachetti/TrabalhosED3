@@ -2,7 +2,7 @@
 #include "../../include/tools.h"
 #include "../../include/fornecidas.h"
 
-void func9(char* arquivoEntrada, char* arquivoIndice, int p) {
+void func9(char* arquivoEntrada, char* arquivoIndice, int func9Mode) {
 
     FILE* fEntrada = NULL;
     FILE* fIndice = NULL;
@@ -83,7 +83,7 @@ void func9(char* arquivoEntrada, char* arquivoIndice, int p) {
 
     fclose(fIndice);
 
-    if(p == 1)
+    if(func9Mode == ESCREVE_BIN)
         BinarioNaTela(arquivoIndice);
 
     return;

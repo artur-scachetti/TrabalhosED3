@@ -27,7 +27,7 @@ int main()
 
             scanf("%s %s", arquivoEntrada, arquivoIndice);
 
-            func9(arquivoEntrada, arquivoIndice, 1);
+            func9(arquivoEntrada, arquivoIndice, ESCREVE_BIN);
 
             break;
         }
@@ -58,6 +58,8 @@ int main()
 
                 func11(arquivoEntrada, arquivoIndices, numPares, args);
 
+                freeArgsBusca(args, numPares);
+
                 if(i < numConjuntos)
                     printf("\n");
             }
@@ -79,6 +81,8 @@ int main()
                 argsBusca* args = determinaArgsBusca(numPares);
 
                 func12(arquivoEntrada, arquivoIndices, numPares, args);
+
+                freeArgsBusca(args, numPares);
             }
 
             BinarioNaTela(arquivoEntrada);
@@ -118,6 +122,9 @@ int main()
                 argsBusca* argsAtt = determinaArgsBusca(numParesAtt);
 
                 func14(arquivoEntrada, arquivoIndices, args, argsAtt, numParesBusca, numParesAtt);
+
+                freeArgsBusca(args, numParesBusca);
+                freeArgsBusca(argsAtt, numParesAtt);
             }
             BinarioNaTela(arquivoEntrada);
             BinarioNaTela(arquivoIndices);

@@ -7,13 +7,10 @@ void func12(char* arquivoEntrada, char* arquivoIndices, int numPares, argsBusca*
     headerReg header;
     dataReg data;
 
-    FILE* fEntrada = fopen(arquivoEntrada, "r+b");
+    FILE* fEntrada = NULL;
 
-    if(fEntrada == NULL || !header_read(&header, fEntrada))
+    if(!write_func_init(arquivoEntrada, &fEntrada, &header))
     {
-        if(fEntrada != NULL)
-            fclose(fEntrada);
-
         printf("Falha no processamento do arquivo.\n");
         return;
     }
@@ -22,22 +19,8 @@ void func12(char* arquivoEntrada, char* arquivoIndices, int numPares, argsBusca*
     fseek(fEntrada, 0, SEEK_SET);
     header_write(&header, fEntrada);
 
-    int search_type = -1;
     int valorIdPoPs = -1;
-
-    for(int i = 0; i < numPares; i++) {
-
-        if(strcmp(args[i].nomesCampo, "idPoPs") == 0) {
-
-            search_type = INDEX_SEARCH;
-            valorIdPoPs = atoi(args[i].valoresCampo);
-
-            break;
-        }
-
-        else
-            search_type = PARAMETER_SEARCH;
-    }
+    int search_type = determinaTipoBusca(args, numPares, &valorIdPoPs);
 
     if(search_type == INDEX_SEARCH) {
         // busca por index
@@ -46,7 +29,7 @@ void func12(char* arquivoEntrada, char* arquivoIndices, int numPares, argsBusca*
 
     if(search_type == PARAMETER_SEARCH) {
         // busca por parâmetro
-        complete_parameter_search(&data, &header, fEntrada, numPares, 0, args, NULL, DELETE_MODE); 
+        complete_parameter_search(&data, &header, fEntrada, numPares, 0, args, NULL, DELETE_MODE);
     }
 
     fseek(fEntrada, 0, SEEK_SET);
@@ -55,7 +38,7 @@ void func12(char* arquivoEntrada, char* arquivoIndices, int numPares, argsBusca*
 
     fclose(fEntrada);
 
-    func9(arquivoEntrada, arquivoIndices, 0);
+    func9(arquivoEntrada, arquivoIndices, APENAS_CRIA);
 
     return;
 }

@@ -24,7 +24,6 @@ void consume_trash(FILE* arquivoEntrada, int amount) {
     char trash;
 
     for (int i = 0; i < amount; i++) {
-
         fread(&trash, sizeof(char), 1, arquivoEntrada);
     }
 }
@@ -68,9 +67,7 @@ void data_write_rem(const dataReg* data, FILE* arquivoSaida)
     fwrite(&data->removido, sizeof(char), 1, arquivoSaida);
     fwrite(&data->tamanhoRegistro, sizeof(int), 1, arquivoSaida);
     fwrite(&data->encadeamentoLista, sizeof(long long int), 1, arquivoSaida);
-
-    for(int i = 0; i < data->tamanhoRegistro - 13; i++)
-        fwrite("$", sizeof(char), 1, arquivoSaida);
+    fill_trash(arquivoSaida, data->tamanhoRegistro - 13);
 }
 
 void read_single_var_field(FILE* arquivoEntrada, char** field, int* total_read_bytes) {
@@ -101,18 +98,18 @@ void read_single_var_field(FILE* arquivoEntrada, char** field, int* total_read_b
     (*field)[i] = '\0';
 }
 
-void read_all_var_fields(dataReg* data, FILE* arquivoEntrada, int alr_bytes_readed) {
+void read_all_var_fields(dataReg* data, FILE* arquivoEntrada, int alr_bytes_read) {
     
-    int bytes_readed = alr_bytes_readed;
+    int bytes_read = alr_bytes_read;
 
     // percorre nomePops
-    read_single_var_field(arquivoEntrada, &data->nomePops, &bytes_readed);
+    read_single_var_field(arquivoEntrada, &data->nomePops, &bytes_read);
 
     // percorre nomePais
-    read_single_var_field(arquivoEntrada, &data->nomePais, &bytes_readed);
+    read_single_var_field(arquivoEntrada, &data->nomePais, &bytes_read);
 
     // consome o lixo restante
-    consume_trash(arquivoEntrada, data->tamanhoRegistro - bytes_readed);
+    consume_trash(arquivoEntrada, data->tamanhoRegistro - bytes_read);
 }
 
 int data_read(dataReg* data, FILE* arquivoEntrada)
@@ -139,41 +136,48 @@ int data_read(dataReg* data, FILE* arquivoEntrada)
     return 1;
 }
 
+
+void atribuirNome(char** nome, char* valor)
+{
+    if(strcmp(valor, "NULO") == 0)
+        valor = "";
+
+    char* aux = realloc(*nome, strlen(valor) + 1);
+
+    if(aux != NULL)
+    {
+        *nome = aux;
+        strcpy(*nome, valor);
+    }
+}
+
+
+void atribuirSigla(char* siglaPais, char* valor)
+{
+    if(strcmp(valor, "NULO") == 0)
+        memcpy(siglaPais, "$$", 2);
+    else
+        memcpy(siglaPais, valor, 2);
+    return;
+}
+
 dataReg data_Cria(char* idPoPs, char* siglaPais, char* nomePops, char* nomePais)
 {
     dataReg data;
+
     data.removido = '0';
     data.encadeamentoLista = -1;
+    data.nomePops = NULL;
+    data.nomePais = NULL;
     data.idPoPs = atoi(idPoPs);
 
-    if(strcmp(siglaPais, "NULO") == 0) 
-        memcpy(data.siglaPais, "$$", 2);
-    else 
-        memcpy(data.siglaPais, siglaPais, 2);
+    atribuirSigla(data.siglaPais, siglaPais);
 
-    if(strcmp(nomePops, "NULO") == 0) {
-
-        data.nomePops = (char*) malloc(1 * sizeof(char));
-        data.nomePops[0] = '\0';
-    } 
-    else {
-
-        data.nomePops = (char*) malloc((strlen(nomePops) + 1) * sizeof(char));
-        strcpy(data.nomePops, nomePops);
-    }
-
-    if(strcmp(nomePais, "NULO") == 0) {
-
-        data.nomePais = (char*) malloc(1 * sizeof(char));
-        data.nomePais[0] = '\0';
-    } 
-    else {
-
-        data.nomePais = (char*) malloc((strlen(nomePais) + 1) * sizeof(char));
-        strcpy(data.nomePais, nomePais);
-    }
+    atribuirNome(&data.nomePops, nomePops);
+    atribuirNome(&data.nomePais, nomePais);
 
     contaTam(&data);
+
     return data;
 }
 
@@ -184,48 +188,19 @@ void data_Atualiza(dataReg* data, char* nomeCampo, char* valorCampo)
         if(strcmp(valorCampo, "NULO") != 0)
             data->idPoPs = atoi(valorCampo);
     }
-
     else if(strcmp(nomeCampo, "siglaPais") == 0)
     {
-        if(strcmp(valorCampo, "NULO") == 0)
-            memcpy(data->siglaPais, "$$", 2);
-        else
-            memcpy(data->siglaPais, valorCampo, 2);
+        atribuirSigla(data->siglaPais, valorCampo);
     }
-
     else if(strcmp(nomeCampo, "nomePoPs") == 0)
     {
-        free(data->nomePops);
-
-        if(strcmp(valorCampo, "NULO") == 0) {
-
-            data->nomePops = (char*) malloc(1 * sizeof(char));
-            data->nomePops[0] = '\0';
-        } 
-        
-        else {
-
-            data->nomePops = (char*) malloc((strlen(valorCampo) + 1) * sizeof(char));
-            strcpy(data->nomePops, valorCampo);
-        }
+        atribuirNome(&data->nomePops, valorCampo);
     }
-
     else if(strcmp(nomeCampo, "nomePais") == 0)
     {
-        free(data->nomePais);
-
-        if(strcmp(valorCampo, "NULO") == 0) {
-
-            data->nomePais = (char*) malloc(1 * sizeof(char));
-            data->nomePais[0] = '\0';
-        } 
-        
-        else {
-
-            data->nomePais = (char*) malloc((strlen(valorCampo) + 1) * sizeof(char));
-            strcpy(data->nomePais, valorCampo);
-        }
+        atribuirNome(&data->nomePais, valorCampo);
     }
+
     contaTam(data);
 }
 
@@ -378,16 +353,29 @@ void delete_reg(dataReg* data, headerReg* header, FILE* fEntrada, long long int 
     header->nroPoPs--;
 
     return;
+}
 
+int determinaTipoBusca(argsBusca* args, int numPares, int* valorIdPoPs)
+{
+    for(int i = 0; i < numPares; i++)
+    {
+        if(strcmp(args[i].nomesCampo, "idPoPs") == 0)
+        {
+            *valorIdPoPs = atoi(args[i].valoresCampo);
+            return INDEX_SEARCH;
+        }
+    }
+
+    return PARAMETER_SEARCH;
 }
 
 int get_search_mode(char* nomeCampo) 
 {   
-    if (strcmp(nomeCampo, "siglaPais") == 0) return 1;
-    if (strcmp(nomeCampo, "nomePoPs") == 0) return 2;
-    if (strcmp(nomeCampo, "nomePais") == 0) return 3;
+    if (strcmp(nomeCampo, "nomePoPs") == 0) return NOME_POPS;
+    if (strcmp(nomeCampo, "nomePais") == 0) return NOME_PAIS;
+    if (strcmp(nomeCampo, "siglaPais") == 0) return SIGLA_PAIS;
 
-    if (strcmp(nomeCampo, "idPoPs") == 0) return 13;
+    if (strcmp(nomeCampo, "idPoPs") == 0) return ID_POPS;
 
     return 0;
 }
@@ -401,26 +389,25 @@ int parameter_search(dataReg* data, int search_mode, char* valorBuscado)
 
     switch (search_mode) 
     {
-    
-        case 1: // siglaPais
-            if (null) 
-                return (strncmp(data->siglaPais, "$$", 2) == 0);
-
-            return (strncmp(data->siglaPais, valorBuscado, 2) == 0);
-
-        case 2: // nomePops
+        case NOME_POPS: 
             if (null) 
                 return (data->nomePops[0] == '\0');
 
             return (strcmp(data->nomePops, valorBuscado) == 0);
 
-        case 3: // nomePais
+        case NOME_PAIS:
             if (null) 
                 return (data->nomePais[0] == '\0');
                 
             return (strcmp(data->nomePais, valorBuscado) == 0);
 
-        case 13: // idPoPs (já passado pela index search)
+        case SIGLA_PAIS: 
+            if (null) 
+                return (strncmp(data->siglaPais, "$$", 2) == 0);
+
+            return (strncmp(data->siglaPais, valorBuscado, 2) == 0);
+
+        case ID_POPS: 
             if (null) 
                 return (data->idPoPs == -1); 
 
@@ -442,6 +429,37 @@ int validate_all_parameters(dataReg* data, int numPares, argsBusca* args)
         }
     }
     return 1; 
+}
+
+void atualizarRegistro(dataReg* data, headerReg* header, FILE* fEntrada, long long int offset, int numAtt, argsBusca* argsAtt)
+{
+    int tamOriginal = data->tamanhoRegistro;
+
+    for(int i = 0; i < numAtt; i++)
+        data_Atualiza(data, argsAtt[i].nomesCampo, argsAtt[i].valoresCampo);
+
+    if(data->tamanhoRegistro <= tamOriginal)
+    {
+        data->tamanhoRegistro = tamOriginal;
+        data->removido = '0';
+        data->encadeamentoLista = -1;
+
+        fseek(fEntrada, offset, SEEK_SET);
+        data_write(data, fEntrada);
+    }
+    else
+    {
+        int tamanhoNovo = data->tamanhoRegistro;
+        data->tamanhoRegistro = tamOriginal;
+
+        delete_reg(data, header, fEntrada, offset);
+
+        data->tamanhoRegistro = tamanhoNovo;
+        data->removido = '0';
+        data->encadeamentoLista = -1;
+
+        writeDataWorst(data, header, fEntrada);
+    }
 }
 
 int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, int numPares, int numAtt, argsBusca* args, argsBusca* argsAtt, int mode) {
@@ -479,33 +497,7 @@ int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, 
             if (mode == UPDATE_MODE)
             {
                 long long int proximoOffset = ftell(fEntrada);
-                int tamOriginal = data->tamanhoRegistro;
-                for(int i = 0; i < numAtt; i++)
-                {
-                    data_Atualiza(data, argsAtt[i].nomesCampo, argsAtt[i].valoresCampo);
-                }
-                if(data->tamanhoRegistro <= tamOriginal)
-                {
-                    data->tamanhoRegistro = tamOriginal;
-                    data->removido = '0';
-                    data->encadeamentoLista = -1;
-
-                    fseek(fEntrada, original_bOffset, SEEK_SET);
-                    data_write(data, fEntrada);
-                }
-                else
-                {
-                    int tamanhoNovo = data->tamanhoRegistro;
-                    data->tamanhoRegistro = tamOriginal;
-
-                    delete_reg(data, header, fEntrada, original_bOffset);
-
-                    data->tamanhoRegistro = tamanhoNovo;
-                    data->removido = '0';
-                    data->encadeamentoLista = -1;
-
-                    writeDataWorst(data, header, fEntrada);
-                }
+                atualizarRegistro(data, header, fEntrada, original_bOffset, numAtt, argsAtt);
                 found_field = 1;
                 fseek(fEntrada, proximoOffset, SEEK_SET);
             }
@@ -515,6 +507,55 @@ int complete_parameter_search(dataReg* data, headerReg* header, FILE* fEntrada, 
     }
 
     return found_field;
+}
+
+char* readSingleData()
+{
+    char* aux = NULL;
+    size_t capacidade = 4;
+    size_t tamanho = 0;
+    int c;
+
+    while((c = getchar()) != EOF &&
+          (c == ' ' || c == '\n'));
+
+    if(c == EOF)
+        return NULL;
+
+    if(c == '"')
+    {
+        aux = malloc(capacidade);
+
+        while((c = getchar()) != '"' && c != EOF)
+        {
+            if(tamanho + 1 >= capacidade)
+            {
+                capacidade *= 2;
+                aux = realloc(aux, capacidade);
+            }
+
+            aux[tamanho++] = (char)c;
+        }
+
+        if(c == EOF)
+        {
+            free(aux);
+            return NULL;
+        }
+
+        aux[tamanho] = '\0';
+    }
+    else
+    {
+        aux = malloc(5);
+
+        for(int j = 0; j < 3; j++)
+            c = getchar();
+
+        strcpy(aux, "NULO");
+    }
+
+    return aux;
 }
 
 argsBusca* determinaArgsBusca(int numPares)
@@ -530,100 +571,40 @@ argsBusca* determinaArgsBusca(int numPares)
         if(strcmp(args[i].nomesCampo, "idPoPs") == 0)
             scanf("%ms", &args[i].valoresCampo);
         else
+            args[i].valoresCampo = readSingleData();
+        if(args[i].valoresCampo == NULL)
         {
-            char* aux = NULL;
-            size_t capacidade = 4;
-            size_t tamanho = 0;
-            int c;
-
-            while((c = getchar()) != EOF &&
-                (c == ' ' || c == '\n'));
-
-            if(c == '"')
-            {
-                aux = malloc(capacidade);
-                while((c = getchar()) != '"' && c != EOF)
-                {
-                    if(tamanho + 1 >= capacidade)
-                    {
-                        capacidade *= 2;
-                        aux = realloc(aux, capacidade);
-                    }
-                    aux[tamanho++] = (char)c;
-                }
-
-                if(c == EOF)
-                {
-                    free(aux);
-                    return NULL;
-                }
-                aux[tamanho] = '\0';
-                args[i].valoresCampo = aux;
-            }
-            else
-            {
-                args[i].valoresCampo = malloc(5);
-                strcpy(args[i].valoresCampo, "NULO");
-                for(int j = 0; j < 3; j++)
-                    c = getchar();
-            }
+            freeArgsBusca(args, i);
+            return NULL;
         }
     }
-    return args;
+        return args;
 }
 
 void readSingleInput(dataReg* data, int modo)
 {
-    char* aux = NULL;
-    size_t capacidade = 4;
-    size_t tamanho = 0;
-    int c;
+    char* aux = readSingleData();
 
-    while((c = getchar()) != EOF &&
-                (c == ' ' || c == '\n'));
-
-    if(c == '"')
+    if(aux == NULL)
     {
-        aux = malloc(capacidade);
-                while((c = getchar()) != '"' && c != EOF)
-                {
-                    if(tamanho + 1 >= capacidade)
-                    {
-                        capacidade *= 2;
-                        aux = realloc(aux, capacidade);
-                    }
-                    aux[tamanho++] = (char)c;
-                }
-
-                if(c == EOF)
-                {
-                    free(aux);
-                    return;
-                }
-                aux[tamanho] = '\0';
+        free(aux);
+        return;
     }
-    else
-    {
-        aux = malloc(5);
-        for(int j = 0; j < 3; j++)
-            c = getchar();
-        strcpy(aux, "NULO");
-    }
-    if(modo == 1)
+    if(modo == NOME_POPS)
     {
         if(strcmp(aux, "NULO") == 0)
             aux[0] = '\0';
 
         data->nomePops = aux;
     }
-    else if(modo == 2)
+    else if(modo == NOME_PAIS)
     {
         if(strcmp(aux, "NULO") == 0)
             aux[0] = '\0';
 
         data->nomePais = aux;
     }
-    if(modo == 3)
+    if(modo == SIGLA_PAIS)
     {
         if(strcmp(aux, "NULO") == 0)
             memcpy(data->siglaPais, "$$", 2);
@@ -642,9 +623,9 @@ void readDataInput(dataReg* data)
     scanf("%d", &idPoPs);
     data->idPoPs = idPoPs;
 
-    readSingleInput(data, 1); //nome PoPs
-    readSingleInput(data, 2); //nome Pais
-    readSingleInput(data, 3); //Sigla
+    readSingleInput(data, NOME_POPS); 
+    readSingleInput(data, NOME_PAIS); 
+    readSingleInput(data, SIGLA_PAIS); 
     contaTam(data);
 }
 
@@ -690,4 +671,15 @@ void writeDataWorst(dataReg* data, headerReg* header, FILE* fSaida)
         header->proxOff = ftell(fSaida);
     }
     header->nroPoPs++;
+}
+
+void freeArgsBusca(argsBusca* args, int numPares)
+{
+    if(args == NULL)
+        return;
+
+    for(int i = 0; i < numPares; i++)
+        free(args[i].valoresCampo);
+
+    free(args);
 }

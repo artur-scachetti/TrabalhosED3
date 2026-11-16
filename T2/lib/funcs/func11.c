@@ -9,32 +9,18 @@ void func11(char* arquivoEntrada, char* arquivoIndice, int numPares, argsBusca* 
     headerReg header;
     dataReg data;
 
-    if(!read_func_init(arquivoEntrada, &fEntrada, &header)) {
-
+    if(!read_func_init(arquivoEntrada, &fEntrada, &header)) 
+    {
         printf("Falha no processamento do arquivo.\n");
         return;
     }
      
-    int search_type = -1;
-    int valorIdPoPS = -1;
-
-    for(int i = 0; i < numPares; i++) {
-
-        if(strcmp(args[i].nomesCampo, "idPoPs") == 0) {
-
-            search_type = INDEX_SEARCH;
-            valorIdPoPS = atoi(args[i].valoresCampo);
-
-            break;
-        }
-
-        else
-            search_type = PARAMETER_SEARCH;
-    }
+    int valorIdPoPs = -1;
+    int search_type = determinaTipoBusca(args, numPares, &valorIdPoPs);
 
     if(search_type == INDEX_SEARCH) {
         // busca por index
-        if(!index_search(valorIdPoPS, arquivoIndice, fEntrada, &data, &header, numPares, 0,  args, NULL, PRINT_MODE))
+        if(!index_search(valorIdPoPs, arquivoIndice, fEntrada, &data, &header, numPares, 0,  args, NULL, PRINT_MODE))
             printf("Registro inexistente.\n");
     }
 
