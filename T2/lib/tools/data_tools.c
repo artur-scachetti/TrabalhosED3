@@ -516,9 +516,11 @@ char* readSingleData()
     size_t tamanho = 0;
     int c;
 
+    //Consome o espaço entre os dados
     while((c = getchar()) != EOF &&
           (c == ' ' || c == '\n'));
 
+    //Se chegar ao fim, não há dados inseridos no terminal
     if(c == EOF)
         return NULL;
 
@@ -535,11 +537,11 @@ char* readSingleData()
                 capacidade *= 2;
                 aux = realloc(aux, capacidade);
             }
-            //Armazena o caracter lido
+            //Armazena o caractere lido
             aux[tamanho++] = (char)c;
         }
 
-
+        //Se não encontrou o outro ", a entrada é inválida e a memória e liberada
         if(c == EOF)
         {
             free(aux);
@@ -654,6 +656,7 @@ void writeDataWorst(dataReg* data, headerReg* header, FILE* fSaida)
 
         fseek(fSaida, offsetMaior, SEEK_SET);
 
+        //Se leitura falhar, retorna
         if(!data_read(&dataAux, fSaida))
             return;
 
@@ -669,6 +672,7 @@ void writeDataWorst(dataReg* data, headerReg* header, FILE* fSaida)
             fseek(fSaida, offsetMaior, SEEK_SET);
             data_write(data, fSaida);
 
+            //Maior registro removido possuía espaço o suficiente
             reutilizou = 1;
         }
 
